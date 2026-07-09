@@ -66,21 +66,21 @@
   /* ── HERO ── */
   .hero {
     min-height:100vh; position:relative;
-    display:flex; flex-direction:column; justify-content:flex-end;
+    display:flex; flex-direction:column; justify-content:center; min-height:100vh; padding-top:80px;
     overflow:hidden;
   }
 
   .hero-bg {
     position:absolute; inset:0;
     background-image:url('https://raw.githubusercontent.com/gustavogalioti/SolveLabs/main/meeting.png');
-    background-size:cover; background-position:center 30%;
+    background-size:cover; background-position:center 55%;
   }
 
   .hero-overlay {
     position:absolute; inset:0;
     background:linear-gradient(
       to bottom,
-      rgba(8,12,16,0.55) 0%,
+      rgba(8,12,16,0.65) 0%,
       rgba(8,12,16,0.40) 25%,
       rgba(8,12,16,0.75) 60%,
       rgba(8,12,16,0.98) 100%
@@ -89,7 +89,7 @@
 
   .hero-content {
     position:relative; z-index:10;
-    padding:0 56px 80px; max-width:920px;
+    padding:48px 56px; max-width:920px;
   }
 
   .hero-tag {
@@ -319,7 +319,7 @@
   @media(max-width:900px) { .cards-grid { grid-template-columns:1fr 1fr; } }
   @media(max-width:768px) {
     nav { padding:16px 24px; }
-    .hero-content { padding:0 24px 64px; }
+    .hero-content { padding:0 24px 48px; }
     .sobre { padding:64px 24px; }
     .sobre-inner { grid-template-columns:1fr; gap:48px; }
     .servicos { padding:64px 24px; }
