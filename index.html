@@ -100,6 +100,26 @@
     animation:fadeUp .6s ease both;
   }
 
+  .hero-pre-title {
+    display:inline-flex; align-items:center; gap:10px;
+    margin-bottom:24px;
+    animation:fadeUp .6s ease both;
+  }
+  .hero-pre-title span {
+    font-family:'Space Grotesk',sans-serif;
+    font-size:12px; font-weight:700; letter-spacing:5px;
+    text-transform:uppercase; color:rgba(255,255,255,0.5);
+  }
+
+  .hero-headline {
+    font-family:'Space Grotesk',sans-serif; font-weight:700;
+    font-size:clamp(42px,6.5vw,88px);
+    line-height:1.02; color:#FFFFFF;
+    margin-bottom:28px; letter-spacing:-2px;
+    animation:fadeUp .6s .1s ease both;
+  }
+  .hero-headline em { font-style:italic; color:#00FFFF; }
+
   .hero-tag-dot { width:6px; height:6px; border-radius:50%; background:#00CCCC; animation:pulse 2s infinite; }
 
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
@@ -114,8 +134,8 @@
   .hero h1 em { font-style:italic; color:#00FFFF; font-family:'Space Grotesk',sans-serif; }
 
   .hero-sub {
-    font-size:clamp(15px,1.5vw,17px); font-weight:300;
-    color:rgba(255,255,255,0.80); line-height:1.8; max-width:520px; margin-bottom:40px;
+    font-size:clamp(15px,1.5vw,18px); font-weight:300;
+    color:rgba(255,255,255,0.75); line-height:1.8; max-width:580px; margin-bottom:40px;
     animation:fadeUp .6s .2s ease both;
   }
 
@@ -128,6 +148,7 @@
     transition:all .25s; animation:fadeUp .6s .3s ease both;
   }
   .hero-cta:hover { background:var(--verde2); transform:translateY(-2px); box-shadow:0 12px 36px rgba(0,204,204,0.4); }
+  .hero-sub strong { font-weight:700; color:#FFFFFF; }
   .hero-cta svg { transition:transform .2s; }
   .hero-cta:hover svg { transform:translateX(4px); }
 
@@ -415,12 +436,12 @@
   <div class="hero-bg"></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-tag">
+    <div class="hero-pre-title">
       <div class="hero-tag-dot"></div>
-      O que você precisa para virar o jogo da sua marca?
+      <span>SolveLabs</span>
     </div>
-    <h1>Você precisa de um site,<br>comunicação visual ou uma<br>estratégia que <em>realmente funcione?</em></h1>
-    <p class="hero-sub">Preencha o formulário, conte o que busca e quais são suas dores hoje. Respondemos o mais rápido possível com o que podemos te entregar.</p>
+    <h1 class="hero-headline">O que você precisa<br>para <em>virar o jogo</em><br>da sua marca?</h1>
+    <p class="hero-sub">A Solve resolve! Podemos criar o que você precisa.<br><strong>Qual é a sua ideia? Qual é a sua dor?</strong></p>
     <a href="#contato" class="hero-cta">
       Fale com a gente
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
