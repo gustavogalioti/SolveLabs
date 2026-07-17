@@ -179,6 +179,63 @@
 
   .cards-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
 
+  /* 3 COLUNAS */
+  .cols-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; align-items:start; }
+
+  .col-wrap { display:flex; flex-direction:column; gap:14px; }
+
+  .col-label {
+    display:flex; align-items:center; gap:10px;
+    padding-bottom:14px; border-bottom:1px solid var(--borda);
+    margin-bottom:2px;
+  }
+  .col-num {
+    font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700;
+    color:var(--verde); letter-spacing:2px;
+  }
+  .col-title {
+    font-size:12px; font-weight:600; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--muted);
+  }
+
+  .col-cards { display:flex; flex-direction:column; gap:14px; }
+
+  .s-card-sm { padding:24px 22px; }
+  .s-card-sm h3 { font-size:15px; margin-bottom:8px; }
+  .s-card-sm p { font-size:12px; margin-bottom:14px; }
+  .s-card-sm .s-itens { margin-bottom:14px; }
+  .s-card-sm .s-itens li { font-size:11px; }
+  .s-card-sm .s-por { font-size:24px; }
+
+  .s-card-destaque-ai {
+    background:linear-gradient(145deg,#0a1f30,#0d2840);
+    border-color:rgba(0,201,167,0.3);
+    flex:1;
+  }
+  .s-card-destaque-ai::before {
+    content:'IA EXCLUSIVO';
+    position:absolute; top:16px; right:16px;
+    background:var(--verde); color:#080C10;
+    font-size:8px; font-weight:700; letter-spacing:2px;
+    padding:3px 10px; border-radius:50px;
+  }
+
+  .servicos-cta {
+    margin-top:56px; text-align:center;
+    padding:40px; background:var(--dark1);
+    border:1px solid var(--borda); border-radius:16px;
+  }
+  .servicos-cta p { font-size:16px; color:var(--muted); margin-bottom:20px; }
+  .btn-servicos-cta {
+    display:inline-block;
+    background:var(--verde); color:#080C10;
+    padding:14px 36px; border-radius:50px;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px;
+    text-decoration:none; transition:all .25s;
+    box-shadow:0 6px 20px rgba(0,201,167,0.25);
+  }
+  .btn-servicos-cta:hover { background:var(--verde2); transform:translateY(-2px); }
+
   .s-card {
     background:var(--dark1); border:1px solid var(--borda);
     border-radius:16px; padding:36px 32px;
@@ -316,7 +373,7 @@
   .reveal.visible { opacity:1; transform:translateY(0); }
 
   /* ── MOBILE ── */
-  @media(max-width:900px) { .cards-grid { grid-template-columns:1fr 1fr; } }
+  @media(max-width:900px) { .cards-grid { grid-template-columns:1fr 1fr; } .cols-grid { grid-template-columns:1fr; } }
   @media(max-width:768px) {
     nav { padding:16px 24px; }
     .hero-content { padding:110px 24px 60px; }
@@ -324,6 +381,7 @@
     .sobre-inner { grid-template-columns:1fr; gap:48px; }
     .servicos { padding:64px 24px; }
     .cards-grid { grid-template-columns:1fr; }
+    .cols-grid { grid-template-columns:1fr; }
     .form-wrap { padding:64px 24px; }
     .form-card { padding:32px 24px; }
     .f-row { grid-template-columns:1fr; }
@@ -405,107 +463,143 @@
       <p>Selecione um serviço e preencha o formulário — a gente cuida do resto</p>
     </div>
 
-    <div class="cards-grid">
+    <div class="cols-grid">
 
-      <a href="#contato" class="s-card reveal">
-        <div class="s-icon">🌐</div>
-        <h3>Site Profissional</h3>
-        <p>Página institucional, portfólio ou landing page. Moderno, responsivo e preparado para o Google.</p>
-        <ul class="s-itens">
-          <li>Responsivo — mobile e desktop</li>
-          <li>SEO básico configurado</li>
-          <li>Formulário de contato</li>
-          <li>Domínio e hospedagem indicados</li>
-        </ul>
-        <div class="s-preco">
-          <div class="preco-linha"><span class="s-por">R$500</span></div>
-          <div class="s-parcela">ou 10x de R$50 sem juros</div>
-          <div class="s-obs">+ R$100/mês suporte mensal</div>
+      <!-- COLUNA 1 — CHATBOT IA -->
+      <div class="col-wrap reveal">
+        <div class="col-label">
+          <span class="col-num">01</span>
+          <span class="col-title">Inteligência Artificial</span>
         </div>
-      </a>
+        <a href="#contato" class="s-card s-card-destaque-ai">
+          <div class="s-icon">🤖</div>
+          <h3>ChatBots com IA</h3>
+          <p>Para WhatsApp ou sites — recebe seu cliente, responde dúvidas, endereça informações, gera relatórios de atendimento e envia e-mails. Tudo automatizado, 24h por dia.</p>
+          <ul class="s-itens">
+            <li>Integração com WhatsApp e site</li>
+            <li>Atendimento automático 24/7</li>
+            <li>Relatórios de atendimento</li>
+            <li>Envio de e-mails automático</li>
+            <li>Treinado com dados do seu negócio</li>
+          </ul>
+          <div class="s-preco">
+            <div class="preco-linha"><span style="font-size:12px;color:var(--muted)">A partir de</span><span class="s-por" style="font-size:24px">Sob consulta</span></div>
+            <div class="s-obs">Diagnóstico gratuito via formulário</div>
+          </div>
+        </a>
+      </div>
 
-      <a href="#contato" class="s-card reveal">
-        <div class="s-icon">✦</div>
-        <h3>Identidade Visual</h3>
-        <p>Logo, paleta, tipografia e templates para redes sociais. Sua marca com cara de grande empresa.</p>
-        <ul class="s-itens">
-          <li>Logo em PNG e SVG</li>
-          <li>Paleta de cores + tipografia</li>
-          <li>3 templates para Instagram</li>
-          <li>Guia de marca em PDF</li>
-        </ul>
-        <div class="s-preco">
-          <div class="preco-linha"><span class="s-por">R$100</span></div>
-          <div class="s-obs">Entrega em até 48h · Revisões inclusas</div>
+      <!-- COLUNA 2 — DIGITAL -->
+      <div class="col-wrap reveal">
+        <div class="col-label">
+          <span class="col-num">02</span>
+          <span class="col-title">Presença Digital</span>
         </div>
-      </a>
+        <div class="col-cards">
+          <a href="#contato" class="s-card s-card-sm">
+            <div class="s-icon">🌐</div>
+            <h3>Site Profissional</h3>
+            <p>Página institucional, portfólio ou landing page. Moderno, responsivo e preparado para o Google.</p>
+            <ul class="s-itens">
+              <li>Responsivo — mobile e desktop</li>
+              <li>SEO básico configurado</li>
+              <li>Formulário de contato</li>
+            </ul>
+            <div class="s-preco">
+              <div class="preco-linha"><span class="s-por">R$500</span></div>
+              <div class="s-parcela">ou 10x de R$50 sem juros</div>
+              <div class="s-obs">+ R$100/mês suporte mensal</div>
+            </div>
+          </a>
+          <a href="#contato" class="s-card s-card-sm">
+            <div class="s-icon">⚙️</div>
+            <h3>Ferramentas & Sistemas</h3>
+            <p>Sistemas sob medida, automações e dashboards que resolvem problemas reais do seu negócio.</p>
+            <ul class="s-itens">
+              <li>Sistemas web personalizados</li>
+              <li>Automações e integrações</li>
+              <li>Dashboards de gestão</li>
+            </ul>
+            <div class="s-preco">
+              <div class="preco-linha"><span style="font-size:12px;color:var(--muted)">A partir de</span><span class="s-por" style="font-size:22px">Sob consulta</span></div>
+            </div>
+          </a>
+          <a href="#contato" class="s-card s-card-sm">
+            <div class="s-icon">📊</div>
+            <h3>Planilhas Personalizadas</h3>
+            <p>Excel ou Google Sheets com fórmulas, automações e visual limpo para seu negócio.</p>
+            <ul class="s-itens">
+              <li>Excel ou Google Sheets</li>
+              <li>Fórmulas e automações</li>
+              <li>Layout organizado</li>
+            </ul>
+            <div class="s-preco">
+              <div class="preco-linha"><span class="s-por">R$50</span></div>
+              <div class="s-obs">por planilha · Entrega em 48h</div>
+            </div>
+          </a>
+        </div>
+      </div>
 
-      <a href="#contato" class="s-card destaque reveal">
-        <div class="s-icon">📢</div>
-        <h3>Branding & Marketing</h3>
-        <p>Estratégia completa com especialista dedicado tocando o projeto ao seu lado — do planejamento à execução.</p>
-        <ul class="s-itens">
-          <li>Estratégia de marketing personalizada</li>
-          <li>Criação e gestão de posts</li>
-          <li>Como implementar cada ação</li>
-          <li>Especialista dedicado ao projeto</li>
-        </ul>
-        <div class="s-preco">
-          <div class="preco-linha"><span style="font-size:12px;color:var(--muted)">A partir de</span><span class="s-por" style="font-size:24px">Sob consulta</span></div>
-          <div class="s-obs">Proposta personalizada via formulário</div>
+      <!-- COLUNA 3 — MARCA -->
+      <div class="col-wrap reveal">
+        <div class="col-label">
+          <span class="col-num">03</span>
+          <span class="col-title">Marca & Comunicação</span>
         </div>
-      </a>
-
-      <a href="#contato" class="s-card reveal">
-        <div class="s-icon">⚙️</div>
-        <h3>Ferramentas & Sistemas</h3>
-        <p>Automatizações, sistemas sob medida, integrações e softwares que resolvem problemas reais do seu negócio.</p>
-        <ul class="s-itens">
-          <li>Sistemas web personalizados</li>
-          <li>Automações e integrações</li>
-          <li>Dashboards e painéis de gestão</li>
-          <li>Software sob medida</li>
-        </ul>
-        <div class="s-preco">
-          <div class="preco-linha"><span style="font-size:12px;color:var(--muted)">A partir de</span><span class="s-por" style="font-size:24px">Sob consulta</span></div>
-          <div class="s-obs">Diagnóstico gratuito via formulário</div>
+        <div class="col-cards">
+          <a href="#contato" class="s-card s-card-sm">
+            <div class="s-icon">✦</div>
+            <h3>Identidade Visual</h3>
+            <p>Logo, paleta, tipografia e templates para redes. Sua marca com cara de grande empresa.</p>
+            <ul class="s-itens">
+              <li>Logo em PNG e SVG</li>
+              <li>Paleta de cores + tipografia</li>
+              <li>3 templates para Instagram</li>
+            </ul>
+            <div class="s-preco">
+              <div class="preco-linha"><span class="s-por">R$100</span></div>
+              <div class="s-obs">Entrega em até 48h · Revisões inclusas</div>
+            </div>
+          </a>
+          <a href="#contato" class="s-card s-card-sm destaque">
+            <div class="s-icon">📢</div>
+            <h3>Branding & Marketing</h3>
+            <p>Estratégia completa com especialista dedicado do planejamento à execução.</p>
+            <ul class="s-itens">
+              <li>Estratégia de marketing</li>
+              <li>Criação e gestão de posts</li>
+              <li>Especialista dedicado</li>
+            </ul>
+            <div class="s-preco">
+              <div class="preco-linha"><span style="font-size:12px;color:var(--muted)">A partir de</span><span class="s-por" style="font-size:22px">Sob consulta</span></div>
+            </div>
+          </a>
+          <a href="#contato" class="s-card s-card-sm">
+            <div class="s-icon">📱</div>
+            <h3>Presença Digital Completa</h3>
+            <p>Site + identidade visual + redes sociais. Tudo junto, do zero, com estratégia integrada.</p>
+            <ul class="s-itens">
+              <li>Site + identidade visual</li>
+              <li>Setup das redes sociais</li>
+              <li>Estratégia de conteúdo</li>
+            </ul>
+            <div class="s-preco">
+              <div class="preco-linha"><span class="s-por">R$500</span></div>
+              <div class="s-obs">+ R$100/mês suporte e acompanhamento</div>
+            </div>
+          </a>
         </div>
-      </a>
-
-      <a href="#contato" class="s-card reveal">
-        <div class="s-icon">📊</div>
-        <h3>Planilhas Profissionais</h3>
-        <p>Excel ou Google Sheets com fórmulas, automações e visual limpo. Controle financeiro, fluxo de caixa, gestão de clientes.</p>
-        <ul class="s-itens">
-          <li>Excel ou Google Sheets</li>
-          <li>Fórmulas e automações</li>
-          <li>Layout organizado e visual</li>
-          <li>Instruções de uso inclusas</li>
-        </ul>
-        <div class="s-preco">
-          <div class="preco-linha"><span class="s-por">R$50</span></div>
-          <div class="s-obs">por planilha · Entrega em 48h</div>
-        </div>
-      </a>
-
-      <a href="#contato" class="s-card reveal">
-        <div class="s-icon">📱</div>
-        <h3>Presença Digital Completa</h3>
-        <p>Site + identidade visual + redes sociais estruturadas. Tudo junto, do zero, com estratégia integrada.</p>
-        <ul class="s-itens">
-          <li>Site + identidade visual</li>
-          <li>Setup das redes sociais</li>
-          <li>Bio, destaques e templates</li>
-          <li>Estratégia de conteúdo inicial</li>
-        </ul>
-        <div class="s-preco">
-          <div class="preco-linha"><span style="font-size:12px;color:var(--muted)">Combo a partir de</span></div>
-          <div class="preco-linha" style="margin-top:4px"><span class="s-por">R$500</span></div>
-          <div class="s-obs">+ R$100/mês suporte e acompanhamento</div>
-        </div>
-      </a>
+      </div>
 
     </div>
+
+    <!-- CTA ABAIXO -->
+    <div class="servicos-cta reveal">
+      <p>Tem alguma dúvida sobre qual serviço é o ideal para você?</p>
+      <a href="#contato" class="btn-servicos-cta">Preencha o formulário e vamos conversar →</a>
+    </div>
+
   </div>
 </section>
 
