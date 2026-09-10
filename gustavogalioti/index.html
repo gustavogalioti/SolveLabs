@@ -163,6 +163,34 @@
   }
   .contact b{color:var(--white); font-weight:600;}
 
+  .qr-section{
+    text-align:center;
+    padding-top:28px;
+    margin-top:6px;
+    border-top:1px solid var(--line);
+  }
+  .qr-section img{
+    width:180px;height:180px;
+    border-radius:14px;
+    background:var(--white);
+    padding:14px;
+    display:block;
+    margin:0 auto 14px;
+  }
+  .qr-section .qr-label{
+    font-family:'Sora',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--white);
+    margin-bottom:4px;
+  }
+  .qr-section .qr-sub{
+    font-size:12.5px;
+    color:var(--muted);
+  }
+
   footer{
     text-align:center;
     color:#5c6c88;
@@ -209,6 +237,12 @@
         Sobre a C2 <span class="chev">›</span>
       </a>
     </nav>
+
+    <div class="qr-section">
+      <img src="data:image/png;base64,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" alt="QR Code WhatsApp">
+      <div class="qr-label">Fale direto no WhatsApp</div>
+      <div class="qr-sub">Escaneie para abrir a conversa</div>
+    </div>
 
     <footer>C2LZ CAPITAL PARTNERS</footer>
   </div>
