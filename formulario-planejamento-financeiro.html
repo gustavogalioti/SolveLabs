@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C2LZ — Formulário de Planejamento Financeiro</title>
+<style>
+:root{
+  --bg:#EEF1EF; --bg-2:#E3E8E4; --panel:#FFFFFF; --panel-2:#FFFFFF; --panel-3:#E3E8E4;
+  --border:#D7DED9; --border-soft:#E3E8E4;
+  --ink:#142019; --muted:#55695D; --faint:#7C9186;
+  --gold:#c99a54; --gold-bright:#e6c07f; --gold-dim:#4a3c22;
+  --mint:#2fe3ab; --mint-dim:#123a2c;
+  --danger:#e5786a; --danger-dim:#3a1c17;
+  --shadow:0 8px 28px rgba(20,32,25,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,Arial,sans-serif;color:var(--ink)}
+.app{max-width:1180px;margin:auto;padding:24px}
+.header{background:var(--panel-2);color:var(--ink);border:1px solid var(--border);border-radius:18px;padding:26px 28px;margin-bottom:18px}
+.brand{font-size:13px;letter-spacing:1.4px;color:var(--gold);font-weight:800}
+h1{margin:8px 0 6px;font-size:28px;font-family:'Space Grotesk',Inter,Arial,sans-serif}
+.header p{margin:0;color:var(--muted)}
+.progress{height:8px;background:var(--panel-3);border-radius:99px;overflow:hidden;margin:16px 0 10px}
+.progress i{display:block;height:100%;background:var(--gold);width:12.5%;transition:.25s}
+.steps{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:18px}
+.step{border:1px solid var(--border);background:var(--panel-2);border-radius:10px;padding:9px 6px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer}
+.step.active{border-color:var(--gold);color:var(--gold-bright);font-weight:800;background:var(--gold-dim)}
+.step.done{color:var(--ink)}
+.panel{background:var(--panel-2);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:24px}
+.section{display:none}.section.active{display:block}
+.kicker{font-size:12px;font-weight:800;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+h2{margin:5px 0 7px;font-size:24px;color:var(--ink);font-family:'Space Grotesk',Inter,Arial,sans-serif}
+.desc{color:var(--muted);margin-top:0;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+label{font-size:13px;font-weight:700}
+input,select,textarea{width:100%;min-height:44px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:16px;background:var(--panel);color:var(--ink);outline:none}
+textarea{min-height:96px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,154,84,.18)}
+.help{font-size:12px;color:var(--muted)}
+.subtitulo-grupo{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gold);margin:0 0 8px}
+.card{border:1px solid var(--border);border-radius:13px;padding:16px;margin:16px 0;background:var(--bg)}
+.card h3{margin:0 0 12px;color:var(--ink);font-size:16px}
+.card.destaque{border-color:var(--gold);background:var(--gold-dim)}
+.card.destaque h3,.card.destaque label,.card.destaque .help{color:var(--gold-bright)}
+.repeater{display:grid;gap:10px}
+.rep{border:1px solid var(--border);border-radius:12px;padding:13px;background:var(--panel-2)}
+.rep .grid{margin:0}
+.grupo-prazo{margin-bottom:16px}
+.grupo-prazo:last-child{margin-bottom:0}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+button{border:0;border-radius:10px;padding:12px 17px;font-size:14px;font-weight:800;cursor:pointer;min-height:44px}
+.primary{background:var(--gold);color:var(--ink)}.secondary{background:var(--panel-3);color:var(--ink)}
+.teal{background:var(--gold);color:var(--ink)}.danger{background:var(--danger-dim);color:var(--danger)}
+button:disabled{opacity:.55;cursor:not-allowed}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.metric{border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--panel-3)}
+.metric span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:800}
+.metric strong{display:block;margin-top:5px;font-size:20px;color:var(--ink)}
+.notice{padding:13px 15px;border-radius:11px;background:var(--mint-dim);border-left:4px solid var(--mint);margin:15px 0;line-height:1.45;color:var(--mint)}
+.notice b{color:inherit}
+.warn{background:var(--gold-dim);border-left-color:var(--gold);color:var(--gold-bright)}
+.error{background:var(--danger-dim);border-left-color:var(--danger);color:var(--danger)}
+.tablewrap{overflow:auto;border:1px solid var(--border);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:13px}
+th{background:var(--panel-3);color:var(--ink);font-size:11px;text-transform:uppercase}
+.right{text-align:right}
+.checkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.check{border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;gap:8px;align-items:center;font-size:13px}
+.check input{min-height:auto;width:18px}
+.footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+.hp{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden}
+.sucesso-panel{display:none;text-align:center;padding:40px 20px}
+.sucesso-panel.active{display:block}
+.sucesso-panel h2{color:var(--ink)}
+@media(max-width:800px){
+ .app{padding:12px}.steps{grid-template-columns:repeat(4,1fr)}.grid,.grid3,.summary,.checkgrid{grid-template-columns:1fr}
+ .panel{padding:16px}h1{font-size:23px}.step{font-size:10px}
+}
+@media print{
+ body{background:white;color:#111}.app{max-width:none;padding:0}.header,.steps,.btnrow{display:none!important}
+ .panel{box-shadow:none;border:0;padding:0;background:white}.section{display:block!important;page-break-inside:avoid}
+ input,select,textarea{background:white;color:#111;border-color:#ccc}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="header">
+    <div class="brand">C2LZ CAPITAL PARTNERS</div>
+    <h1>Planejamento Financeiro Personalizado</h1>
+    <p>Diagnóstico completo da pessoa física — dados, patrimônio, objetivos, proteção e legado.</p>
+    <div class="progress"><i id="progressBar"></i></div>
+    <div id="progressText">Etapa 1 de 8</div>
+  </header>
+
+  <nav class="steps" id="steps"></nav>
+
+  <main class="panel" id="formPanel">
+    <form id="form">
+      <!-- honeypot anti-bot: campo real para humanos nunca preenche; se vier preenchido, o backend descarta o envio -->
+      <div class="hp" aria-hidden="true">
+        <label for="website">Deixe este campo em branco</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <section class="section active" data-step="1">
+        <div class="kicker">01 · Você</div><h2>Identificação e perfil</h2>
+        <p class="desc">Dados básicos para identificar o cliente e entender a estrutura tributária.</p>
+        <div class="card destaque">
+          <h3>Assessor / Banker responsável</h3>
+          <div class="field">
+            <label for="bankerId">Quem está te atendendo na C2LZ? *</label>
+            <select id="bankerId">
+              <option value="">Ainda não tenho um assessor</option>
+            </select>
+            <p class="help">Se você já conversou com alguém da C2LZ, selecione o nome dessa pessoa. Se não, sem problema — alguém do time vai entrar em contato.</p>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field"><label>Nome completo *</label><input id="nome" required></div>
+          <div class="field"><label>Data de nascimento *</label><input id="nascimento" type="date" required></div>
+          <div class="field"><label>CPF</label><input id="cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14"></div>
+          <div class="field"><label>Telefone</label><input id="telefone" inputmode="tel" placeholder="(00) 00000-0000" maxlength="15"></div>
+          <div class="field"><label>E-mail</label><input id="email" type="email"></div>
+          <div class="field"><label>Cidade / Estado</label><input id="cidade"></div>
+          <div class="field"><label>Profissão</label><input id="profissao"></div>
+          <div class="field"><label>Empresa / atividade</label><input id="empresa"></div>
+          <div class="field"><label>Contribui para o INSS?</label><select id="inss"><option>Sim</option><option>Não</option><option>Não sei</option></select></div>
+          <div class="field"><label>Declaração de IR</label><select id="ir"><option>Completa</option><option>Simplificada</option><option>Isento</option><option>Não sei</option></select></div>
+          <div class="field"><label>Estado civil</label><select id="civil"><option>Solteiro(a)</option><option>Casado(a)</option><option>União estável</option><option>Separado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option></select></div>
+          <div class="field"><label>Regime de bens</label><select id="regime"><option>Não se aplica</option><option>Comunhão Parcial</option><option>Comunhão Universal</option><option>Separação Total</option><option>Participação Final nos Aquestos</option></select></div>
+          <div class="field"><label>Nº de filhos</label><input id="filhos" type="number" min="0" value="0"></div>
+          <div class="field"><label>Nº de dependentes</label><input id="dependentes" type="number" min="0" value="0"></div>
+        </div>
+        <div class="card"><h3>Previdência existente</h3><div class="grid grid3">
+          <div class="field"><label>Possui previdência privada?</label><select id="temPrev"><option>Não</option><option>Sim</option></select></div>
+          <div class="field"><label>Saldo aproximado</label><input class="money" id="saldoPrev" value="R$ 0,00"></div>
+          <div class="field"><label>Aporte mensal</label><input class="money" id="aportePrev" value="R$ 0,00"></div>
+        </div></div>
+      </section>
+
+      <section class="section" data-step="2">
+        <div class="kicker">02 · Sua família</div><h2>Família e dependências financeiras</h2>
+        <p class="desc">Mapeie quem depende do patrimônio e da renda do cliente.</p>
+        <div class="card"><h3>Dependentes</h3><div id="dependentsList" class="repeater"></div><button type="button" class="secondary" id="addDependent">+ Adicionar dependente</button></div>
+        <div class="grid">
+          <div class="field"><label>Possui pais vivos?</label><select id="paisVivos"><option>Não sei</option><option>Sim</option><option>Não</option></select></div>
+          <div class="field"><label>Possui irmãos?</label><select id="irmaos"><option>Não sei</option><option>Sim</option><option>Não</option></select></div>
+          <div class="field full"><label>Existe alguma situação familiar relevante para o planejamento?</label><textarea id="situacaoFamiliar" placeholder="Ex.: dependente com necessidade especial, filho de relacionamento anterior, obrigação recorrente, conflito patrimonial etc."></textarea></div>
+        </div>
+      </section>
+
+      <section class="section" data-step="3">
+        <div class="kicker">03 · Seu dinheiro</div><h2>Renda, despesas e caixa</h2>
+        <p class="desc">Esses números estruturam a capacidade de poupança e o caixa livre mensal.</p>
+        <div class="card"><h3>Receitas mensais</h3><div class="grid grid3">
+          <div class="field"><label>Salário líquido</label><input class="money income" id="salario" value="R$ 0,00"></div>
+          <div class="field"><label>Pró-labore</label><input class="money income" id="prolabore" value="R$ 0,00"></div>
+          <div class="field"><label>Lucros / dividendos</label><input class="money income" id="lucros" value="R$ 0,00"></div>
+          <div class="field"><label>Comissões / bônus</label><input class="money income" id="comissoes" value="R$ 0,00"></div>
+          <div class="field"><label>Aluguéis</label><input class="money income" id="aluguéis" value="R$ 0,00"></div>
+          <div class="field"><label>Rendimentos de investimentos</label><input class="money income" id="rendInvest" value="R$ 0,00"></div>
+          <div class="field"><label>Outras receitas</label><input class="money income" id="outrasReceitas" value="R$ 0,00"></div>
+        </div></div>
+        <div class="card"><h3>Despesas mensais</h3><div class="grid grid3">
+          <div class="field"><label>Moradia</label><select id="moradiaTipo"><option>Quitada</option><option>Aluguel</option></select></div>
+          <div class="field" data-fieldwrap="moradiaValorImovel"><label>Valor do imóvel</label><input class="money expense" id="moradiaValorImovel" value="R$ 0,00"></div>
+          <div class="field" data-fieldwrap="moradiaValorAluguel" style="display:none"><label>Valor do aluguel</label><input class="money expense" id="moradiaValorAluguel" value="R$ 0,00"></div>
+          <div class="field"><label>Transporte (combustível/transporte/fretado)</label><input class="money expense" id="transporte" value="R$ 0,00"></div>
+          <div class="field"><label>Educação</label><input class="money expense" id="educacao" value="R$ 0,00"></div>
+          <div class="field"><label>Possui plano de saúde?</label><select id="saudePlano"><option>Não</option><option>Sim</option></select></div>
+          <div class="field" data-fieldwrap="saudeQual" style="display:none"><label>Qual plano?</label><input id="saudeQual"></div>
+          <div class="field" data-fieldwrap="saudeValor" style="display:none"><label>Valor mensal</label><input class="money expense" id="saudeValor" value="R$ 0,00"></div>
+          <div class="field"><label>Compras / pessoais</label><input class="money expense" id="compras" value="R$ 0,00"></div>
+          <div class="field"><label>Outros gastos</label><input class="money expense" id="outrosGastos" value="R$ 0,00"></div>
+        </div></div>
+        <div class="card"><h3>Compromissos patrimoniais mensais</h3><div class="grid grid3">
+          <div class="field"><label>Financiamento imobiliário</label><input class="money commitment" id="financ" value="R$ 0,00"></div>
+          <div class="field"><label>Consórcio</label><input class="money commitment" id="consorcio" value="R$ 0,00"></div>
+          <div class="field"><label>Seguro de vida</label><input class="money commitment" id="seguroMes" value="R$ 0,00"></div>
+        </div>
+        <div id="outrosCompromissosList" class="repeater" style="margin-top:12px"></div>
+        <button type="button" class="secondary" id="addOutroCompromisso" style="margin-top:10px">+ Adicionar outro compromisso</button>
+        </div>
+        <div class="summary">
+          <div class="metric"><span>Renda mensal</span><strong id="mRenda">R$ 0</strong></div>
+          <div class="metric"><span>Custo de vida</span><strong id="mCusto">R$ 0</strong></div>
+          <div class="metric"><span>Caixa livre</span><strong id="mCaixa">R$ 0</strong></div>
+          <div class="metric"><span>Taxa de poupança</span><strong id="mTaxa">0%</strong></div>
+        </div>
+        <div id="cashNotice" class="notice">Preencha os valores para gerar o diagnóstico do caixa.</div>
+      </section>
+
+      <section class="section" data-step="4">
+        <div class="kicker">04 · Seu patrimônio</div><h2>Ativos e passivos</h2>
+        <p class="desc">Registre o patrimônio bruto, as dívidas e o patrimônio líquido.</p>
+        <div class="card"><h3>Imóveis</h3><div id="properties" class="repeater"></div><button type="button" class="secondary" id="addProperty">+ Adicionar imóvel</button></div>
+        <div class="card"><h3>Veículos</h3><div id="vehicles" class="repeater"></div><button type="button" class="secondary" id="addVehicle">+ Adicionar veículo</button></div>
+        <div class="card"><h3>Participações em empresas</h3><div id="companies" class="repeater"></div><button type="button" class="secondary" id="addCompany">+ Adicionar participação</button></div>
+        <div class="card"><h3>Dívidas / passivos</h3><div id="debts" class="repeater"></div><button type="button" class="secondary" id="addDebt">+ Adicionar dívida</button></div>
+        <div class="summary">
+          <div class="metric"><span>Ativos reais</span><strong id="mAtivos">R$ 0</strong></div>
+          <div class="metric"><span>Investimentos</span><strong id="mInvest">R$ 0</strong></div>
+          <div class="metric"><span>Passivos</span><strong id="mPassivos">R$ 0</strong></div>
+          <div class="metric"><span>Patrimônio líquido</span><strong id="mPL">R$ 0</strong></div>
+        </div>
+      </section>
+
+      <section class="section" data-step="5">
+        <div class="kicker">05 · Seus investimentos</div><h2>Carteira atual e perfil de risco</h2>
+        <p class="desc">Mapeie as posições atuais e o comportamento do cliente diante de risco.</p>
+        <div class="card"><h3>Carteira atual</h3><div id="investments" class="repeater"></div><button type="button" class="secondary" id="addInvestment">+ Adicionar investimento</button></div>
+        <div class="card"><h3>Experiência e comportamento</h3>
+          <div class="grid">
+            <div class="field"><label>Tempo investindo</label><select id="experiencia"><option>Nunca investi</option><option>Menos de 2 anos</option><option>2 a 5 anos</option><option>5 a 10 anos</option><option>Mais de 10 anos</option></select></div>
+            <div class="field"><label>Perda temporária que considera aceitável</label><select id="perda"><option>Até 5%</option><option>Até 10%</option><option>Até 15%</option><option>Até 20%</option><option>30% ou mais</option><option>Não sei</option></select></div>
+            <div class="field full"><label>Se uma carteira de R$ 1 milhão caísse para R$ 850 mil temporariamente, você:</label><select id="queda"><option>Resgataria tudo</option><option>Reduziria risco</option><option>Manteria</option><option>Aumentaria os investimentos</option></select></div>
+          </div>
+          <div class="checkgrid" style="margin-top:14px">
+            <label class="check"><input type="checkbox" name="prod" value="Renda fixa"> Renda fixa</label>
+            <label class="check"><input type="checkbox" name="prod" value="Fundos"> Fundos</label>
+            <label class="check"><input type="checkbox" name="prod" value="Ações"> Ações</label>
+            <label class="check"><input type="checkbox" name="prod" value="ETFs"> ETFs</label>
+            <label class="check"><input type="checkbox" name="prod" value="FIIs"> FIIs</label>
+            <label class="check"><input type="checkbox" name="prod" value="Estruturados"> Estruturados</label>
+            <label class="check"><input type="checkbox" name="prod" value="Derivativos"> Derivativos</label>
+            <label class="check"><input type="checkbox" name="prod" value="Cripto"> Cripto</label>
+            <label class="check"><input type="checkbox" name="prod" value="Exterior"> Exterior</label>
+          </div>
+        </div>
+        <div class="summary">
+          <div class="metric"><span>Carteira total</span><strong id="mCarteira">R$ 0</strong></div>
+          <div class="metric"><span>Liquidez diária</span><strong id="mLiquidez">R$ 0</strong></div>
+          <div class="metric"><span>% em liquidez</span><strong id="mPctLiq">0%</strong></div>
+          <div class="metric"><span>Meta mínima</span><strong id="mMetaLiq">R$ 0</strong></div>
+        </div>
+        <div id="liqNotice" class="notice">A regra de referência do modelo C2LZ é 30% da carteira em liquidez diária.</div>
+      </section>
+
+      <section class="section" data-step="6">
+        <div class="kicker">06 · Seus objetivos</div><h2>Objetivos financeiros</h2>
+        <p class="desc">Transforme desejos em metas quantificáveis: valor, prazo e aporte.</p>
+        <div class="card"><h3>Objetivos de curto, médio e longo prazo</h3>
+          <div class="grupo-prazo">
+            <p class="subtitulo-grupo">Curto prazo</p>
+            <div id="goalsCurto" class="repeater"></div>
+            <button type="button" class="secondary" id="addGoalCurto" style="margin-top:8px">+ Adicionar objetivo de curto prazo</button>
+          </div>
+          <div class="grupo-prazo">
+            <p class="subtitulo-grupo">Médio prazo</p>
+            <div id="goalsMedio" class="repeater"></div>
+            <button type="button" class="secondary" id="addGoalMedio" style="margin-top:8px">+ Adicionar objetivo de médio prazo</button>
+          </div>
+          <div class="grupo-prazo">
+            <p class="subtitulo-grupo">Longo prazo</p>
+            <div id="goalsLongo" class="repeater"></div>
+            <button type="button" class="secondary" id="addGoalLongo" style="margin-top:8px">+ Adicionar objetivo de longo prazo</button>
+          </div>
+        </div>
+        <div class="card"><h3>Aposentadoria / usufruto</h3><div class="grid grid3">
+          <div class="field"><label>Idade atual</label><input id="idadeAuto" type="number" min="0" max="120" readonly></div>
+          <div class="field"><label>Idade desejada para usufruto</label><input id="idadeMeta" type="number" min="18" max="100" value="65"></div>
+          <div class="field"><label>Renda mensal desejada hoje</label><input class="money" id="rendaApos" value="R$ 0,00"></div>
+          <div class="field"><label>Meta de imóveis geradores de renda</label><input id="imoveisMeta" type="number" min="0" value="0"></div>
+        </div>
+        <div id="anosParaAposentar" class="help" style="margin-top:10px;font-weight:700"></div>
+        <div class="field full" style="margin-top:10px"><label>Como pensa em atingir esse objetivo?</label><textarea id="comoAtingir"></textarea></div>
+        </div>
+        <div class="card"><h3>Prioridades</h3><div class="checkgrid">
+          <label class="check"><input type="checkbox" name="prio" value="Aposentadoria"> Aposentadoria</label>
+          <label class="check"><input type="checkbox" name="prio" value="Segurança"> Segurança</label>
+          <label class="check"><input type="checkbox" name="prio" value="Crescimento patrimonial"> Crescimento patrimonial</label>
+          <label class="check"><input type="checkbox" name="prio" value="Imóvel"> Compra de imóvel</label>
+          <label class="check"><input type="checkbox" name="prio" value="Educação dos filhos"> Educação dos filhos</label>
+          <label class="check"><input type="checkbox" name="prio" value="Sucessão"> Sucessão</label>
+          <label class="check"><input type="checkbox" name="prio" value="Proteção"> Proteção</label>
+          <label class="check"><input type="checkbox" name="prio" value="Redução de dívidas"> Redução de dívidas</label>
+        </div></div>
+        <div class="field full"><label>O que hoje é sua maior dificuldade olhando para seu patrimônio/finanças?</label><textarea id="maiorDificuldade"></textarea></div>
+      </section>
+
+      <section class="section" data-step="7">
+        <div class="kicker">07 · Sua proteção</div><h2>Seguros e proteção de renda</h2>
+        <p class="desc">Dimensione necessidades de proteção e identifique lacunas existentes.</p>
+        <div class="grid">
+          <div class="field"><label>Possui seguro de vida atualmente?</label><select id="temSeguroVida"><option>Não</option><option>Sim</option></select></div>
+        </div>
+        <div class="grid grid3" id="seguroVidaDetalhe" style="display:none;margin-top:14px">
+          <div class="field"><label>Qual seguradora/produto?</label><input id="seguroVidaQual"></div>
+          <div class="field"><label>Valor da cobertura</label><input class="money" id="vidaAtual" value="R$ 0,00"></div>
+          <div class="field full"><label>O que cobre?</label><textarea id="seguroVidaCobre"></textarea></div>
+        </div>
+        <div class="grid grid3" style="margin-top:14px">
+          <div class="field"><label>Doenças graves atual</label><input class="money" id="dgAtual" value="R$ 0,00"></div>
+          <div class="field"><label>Invalidez atual</label><input class="money" id="invalidezAtual" value="R$ 0,00"></div>
+          <div class="field"><label>Afastamento atual / mês</label><input class="money" id="afastAtual" value="R$ 0,00"></div>
+          <div class="field"><label>Custo mensal dos dependentes</label><input class="money" id="custoDeps" value="R$ 0,00"></div>
+          <div class="field"><label>Educação dos filhos a prover</label><input class="money" id="eduProver" value="R$ 0,00"></div>
+          <div class="field"><label>Tratamento não coberto — doenças graves</label><input class="money" id="tratamento" value="R$ 0,00"></div>
+          <div class="field"><label>Benefício INSS/empregador em afastamento</label><input class="money" id="benefAfast" value="R$ 0,00"></div>
+          <div class="field"><label>Garantir padrão de vida dos dependentes?</label><select id="garantir"><option>Sim</option><option>Não</option></select></div>
+          <div class="field"><label>Modo de garantia</label><select id="modoProtecao"><option>Prazo determinado</option><option>Vitalícia</option></select></div>
+          <div class="field"><label>Horizonte da garantia (anos)</label><input id="anosProtecao" type="number" min="1" value="10"></div>
+          <div class="field"><label>Taxa real usada no modo vitalício</label><input id="taxaReal" type="number" step=".1" value="4"></div>
+        </div>
+        <div class="summary">
+          <div class="metric"><span>Necessidade de vida</span><strong id="protVida">R$ 0</strong></div>
+          <div class="metric"><span>Doenças graves</span><strong id="protDG">R$ 0</strong></div>
+          <div class="metric"><span>Invalidez</span><strong id="protInv">R$ 0</strong></div>
+          <div class="metric"><span>Capital total de lacuna</span><strong id="protLacuna">R$ 0</strong></div>
+        </div>
+        <div class="notice">O cálculo é uma referência de planejamento e deve ser validado conforme o produto, condições de contratação, legislação e análise técnica específica.</div>
+      </section>
+
+      <section class="section" data-step="8">
+        <div class="kicker">08 · Seu legado</div><h2>Sucessão patrimonial</h2>
+        <div class="grid">
+          <div class="field"><label>Possui testamento?</label><select id="testamento"><option>Não</option><option>Sim</option></select></div>
+          <div class="field"><label>Há bens particulares além dos bens comuns?</label><select id="bensPart"><option>Não sei</option><option>Sim</option><option>Não</option></select></div>
+          <div class="field"><label>% aproximado de patrimônio comum do casal</label><input id="pctComum" type="number" min="0" max="100" value="100"></div>
+          <div class="field"><label>Possui holding patrimonial?</label><select id="holding"><option>Não</option><option>Sim</option><option>Em estudo</option></select></div>
+          <div class="field"><label>Deseja destinar bens específicos a alguém?</label><select id="destinoEspecifico"><option>Não</option><option>Sim</option></select></div>
+          <div class="field"><label>Possui previdência pensando em sucessão?</label><select id="prevSucessao"><option>Não sei</option><option>Sim</option><option>Não</option></select></div>
+          <div class="field full"><label>Desejos ou preocupações sucessórias</label><textarea id="desejosSucessao" placeholder="Ex.: preservar empresa, evitar conflitos, proteger cônjuge, organizar imóveis, beneficiar determinados herdeiros etc."></textarea></div>
+        </div>
+        <div class="card">
+          <h3>Resumo patrimonial para a conversa</h3>
+          <div id="finalSummary"></div>
+        </div>
+      </section>
+
+      <div id="validation" class="notice warn" style="display:none"></div>
+      <div class="btnrow">
+        <button type="button" class="secondary" id="prevBtn">← Voltar</button>
+        <button type="button" class="primary" id="nextBtn">Continuar →</button>
+        <button type="submit" class="teal" id="finishBtn" style="display:none">Enviar para a C2LZ</button>
+      </div>
+      <!-- Ferramentas de uso interno da C2LZ (não aparecem pro cliente) - acessar
+           adicionando ?interno=1 na URL, ex: .../formulario-planejamento-financeiro.html?interno=1 -->
+      <div class="btnrow" id="internalTools" style="display:none">
+        <button type="button" class="secondary" id="printBtn">Imprimir / PDF</button>
+        <button type="button" class="secondary" id="exportBtn">Exportar JSON</button>
+      </div>
+    </form>
+
+    <div class="sucesso-panel" id="sucessoPanel">
+      <h2>Recebemos o seu diagnóstico 🎉</h2>
+      <p class="desc">Obrigado por dedicar o tempo para preencher tudo isso. Um assessor da C2LZ Capital Partners vai analisar as suas respostas e entrar em contato em breve.</p>
+    </div>
+  </main>
+  <div class="footer">C2LZ Capital Partners · Formulário de diagnóstico · Documento confidencial</div>
+</div>
+
+<script>
+(function(){
+  const root=document.getElementById('app');
+  if(root.dataset.ready) return; root.dataset.ready='1';
+  let step=1;
+  const total=8;
+  const $=id=>document.getElementById(id);
+  const qs=(s,el=root)=>Array.from(el.querySelectorAll(s));
+  const val=id=>($(id)?.value||'');
+  const parseMoeda=s=>{
+    let x=String(s||'').replace(/^R\$\s?/,'').replace(/\./g,'').replace(',','.');
+    x=x.replace(/[^0-9.-]/g,'');
+    return parseFloat(x)||0;
+  };
+  const num=id=>parseMoeda(val(id));
+  const money=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(Number(n)||0);
+  const pct=n=>(Number(n)||0).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+
+  // Endpoint do backend do CRM que recebe este formulário (ver
+  // app/routers/formulario_publico.py no repo c2lz-crm). Se a URL da API
+  // mudar, atualize só esta constante.
+  const API_BASE='https://c2lz-crm-api.onrender.com';
+
+  // Imprimir/Exportar JSON são ferramentas internas da C2LZ, não do cliente.
+  const modoInterno = new URLSearchParams(location.search).get('interno')==='1';
+  if(modoInterno) $('internalTools').style.display='flex';
+
+  function ageFromDate(d){
+    if(!d) return 0; const b=new Date(d+'T00:00:00Z'), now=new Date();
+    let a=now.getUTCFullYear()-b.getUTCFullYear();
+    const m=now.getUTCMonth()-b.getUTCMonth();
+    if(m<0 || (m===0 && now.getUTCDate()<b.getUTCDate())) a--;
+    return Math.max(0,a);
+  }
+
+  const phases=[
+    {name:'Fase 1 · Início',desc:'Reserva baixa, renda predominantemente laboral e foco em construir patrimônio.',app:.70,cons:.20,prev:.05,seg:.05},
+    {name:'Fase 2 · Crescimento',desc:'Caixa começa a sobrar; crescimento patrimonial e alavancagem responsável ganham espaço.',app:.30,cons:.50,prev:.10,seg:.10},
+    {name:'Fase 3 · Consolidação',desc:'Patrimônio robusto e diversificado; patrimônio já trabalha de forma relevante.',app:.20,cons:.50,prev:.15,seg:.15},
+    {name:'Fase 4 · Usufruto',desc:'Dívidas idealmente zeradas e renda cada vez mais dependente de patrimônio e renda passiva.',app:.50,cons:0,prev:.50,seg:0}
+  ];
+
+  function renderSteps(){
+    const names=['Você','Família','Dinheiro','Patrimônio','Investimentos','Objetivos','Proteção','Legado'];
+    $('steps').innerHTML=names.map((n,i)=>`<div class="step ${i+1===step?'active':''} ${i+1<step?'done':''}" data-go="${i+1}">${String(i+1).padStart(2,'0')} · ${n}</div>`).join('');
+    qs('.step').forEach(x=>x.addEventListener('click',()=>{step=Number(x.dataset.go);render() }));
+    $('progressBar').style.width=(step/total*100)+'%';
+    $('progressText').textContent=`Etapa ${step} de ${total}`;
+  }
+  function render(){
+    qs('.section').forEach(s=>s.classList.toggle('active',Number(s.dataset.step)===step));
+    renderSteps();
+    $('prevBtn').style.display=step===1?'none':'inline-block';
+    $('nextBtn').style.display=step===total?'none':'inline-block';
+    $('finishBtn').style.display=step===total?'inline-block':'none';
+    $('validation').style.display='none';
+    updateAll();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // ---- Máscaras (CPF, telefone, dinheiro) ----
+  function maskCPF(v){
+    v=v.replace(/\D/g,'').slice(0,11);
+    v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    return v;
+  }
+  function maskTelefone(v){
+    v=v.replace(/\D/g,'').slice(0,11);
+    if(v.length>10) return v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3').trim();
+    if(v.length>6) return v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3').trim();
+    if(v.length>2) return v.replace(/(\d{2})(\d{0,5})/,'($1) $2').trim();
+    if(v.length>0) return v.replace(/(\d*)/,'($1').trim();
+    return '';
+  }
+  function maskMoeda(v){
+    let digits=v.replace(/\D/g,'');
+    digits=digits.replace(/^0+(?=\d)/,'');
+    if(!digits) digits='0';
+    if(digits.length<3) digits=digits.padStart(3,'0');
+    let cents=digits.slice(-2), intPart=digits.slice(0,-2).replace(/^0+(?=\d)/,'')||'0';
+    intPart=intPart.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+    return 'R$ '+intPart+','+cents;
+  }
+  root.addEventListener('input',e=>{
+    const t=e.target;
+    if(t.id==='cpf') t.value=maskCPF(t.value);
+    else if(t.id==='telefone') t.value=maskTelefone(t.value);
+    else if(t.classList && t.classList.contains('money')) t.value=maskMoeda(t.value);
+  });
+  root.addEventListener('focusin',e=>{
+    if(e.target.classList && e.target.classList.contains('money')) e.target.select();
+  });
+
+  // ---- Repetidor genérico, com suporte a campo condicional (showIf) ----
+  function addRepCond(container, fields){
+    const el=document.createElement('div'); el.className='rep';
+    el.innerHTML='<div class="grid">'+fields.map(f=>{
+      if(f.type==='info'){
+        return `<div class="field full" data-fieldwrap="${f.k}"><p class="help">${f.text}</p></div>`;
+      }
+      const type=f.type||'text', opts=f.options?`<option>${f.options.join('</option><option>')}</option>`:'';
+      const valAttr = f.money ? ' value="R$ 0,00"' : '';
+      return `<div class="field ${f.full?'full':''}" data-fieldwrap="${f.k}">
+        <label>${f.label}</label>
+        ${type==='select'?`<select data-k="${f.k}">${opts}</select>`:`<input data-k="${f.k}" ${type==='date'?'type="date"':(type==='number'?'type="number" min="0"':'')} class="${f.money?'money':''}" placeholder="${f.placeholder||''}"${valAttr}>`}
+      </div>`;
+    }).join('')+'</div><div class="btnrow"><button type="button" class="danger remove">Remover</button></div>';
+
+    function atualizarVisibilidade(){
+      fields.forEach(f=>{
+        if(!f.showIf) return;
+        const wrap=el.querySelector(`[data-fieldwrap="${f.k}"]`);
+        const ctrl=el.querySelector(`[data-k="${f.showIf.k}"]`);
+        if(!wrap) return;
+        const visivel = ctrl && f.showIf.eq.includes(ctrl.value);
+        wrap.style.display = visivel ? '' : 'none';
+      });
+    }
+    el.addEventListener('input',atualizarVisibilidade);
+    el.addEventListener('change',atualizarVisibilidade);
+    el.querySelector('.remove').addEventListener('click',()=>{el.remove();updateAll()});
+    container.appendChild(el);
+    atualizarVisibilidade();
+    updateAll();
+  }
+
+  $('addDependent').addEventListener('click',()=>addRepCond($('dependentsList'),[
+    {k:'nome',label:'Nome'},
+    {k:'idade',label:'Idade',type:'number'},
+    {k:'dependencia',label:'Dependência financeira?',type:'select',options:['Sim','Não']},
+    {k:'custo',label:'Custo mensal',money:true},
+    {k:'custoDetalhe',label:'O que inclui esse custo?',full:true,placeholder:'Ex.: 2 mil de escola, 1 mil de transporte'},
+  ]));
+
+  $('addProperty').addEventListener('click',()=>addRepCond($('properties'),[
+    {k:'descricao',label:'Imóvel / localização'},
+    {k:'uso',label:'Uso do imóvel',type:'select',options:['Moro','Imóvel para renda']},
+    {k:'valor',label:'Valor de mercado',money:true},
+    {k:'aluguel',label:'Aluguel mensal',money:true,showIf:{k:'uso',eq:['Imóvel para renda']}},
+    {k:'financiado',label:'Financiado?',type:'select',options:['Não','Sim']},
+    {k:'parcela',label:'Parcela mensal',money:true,showIf:{k:'financiado',eq:['Sim']}},
+    {k:'saldo',label:'Saldo devedor',money:true,showIf:{k:'financiado',eq:['Sim']}},
+  ]));
+
+  $('addVehicle').addEventListener('click',()=>addRepCond($('vehicles'),[
+    {k:'descricao',label:'Veículo'},
+    {k:'valor',label:'Valor de mercado',money:true},
+    {k:'financiado',label:'Financiado?',type:'select',options:['Não','Sim']},
+    {k:'parcela',label:'Parcela',money:true,showIf:{k:'financiado',eq:['Sim']}},
+    {k:'saldo',label:'Saldo devedor',money:true,showIf:{k:'financiado',eq:['Sim']}},
+    {k:'seguro',label:'Seguro mensal',money:true},
+  ]));
+
+  $('addCompany').addEventListener('click',()=>addRepCond($('companies'),[
+    {k:'empresa',label:'Empresa'}, {k:'participacao',label:'% participação'}, {k:'valor',label:'Valor estimado',money:true}, {k:'renda',label:'Renda mensal',money:true}
+  ]));
+
+  $('addDebt').addEventListener('click',()=>addRepCond($('debts'),[
+    {k:'credor',label:'Dívida / credor'}, {k:'saldo',label:'Saldo devedor',money:true}, {k:'parcela',label:'Parcela mensal',money:true}, {k:'taxa',label:'Taxa / observação'}
+  ]));
+
+  const OPCOES_PRODUTO=['Renda fixa','Fundos','Ações','ETFs','FIIs','Estruturados','Derivativos','Cripto','Exterior'];
+  const PRODUTOS_DETALHADOS=['Renda fixa','Fundos','Estruturados','Derivativos'];
+  const PRODUTOS_SIMPLIFICADOS=['Ações','ETFs','FIIs','Cripto','Exterior'];
+  $('addInvestment').addEventListener('click',()=>addRepCond($('investments'),[
+    {k:'instituicao',label:'Instituição'},
+    {k:'produto',label:'Produto / ativo',type:'select',options:OPCOES_PRODUTO},
+    {k:'valor',label:'Saldo bruto',money:true},
+    {k:'vencimento',label:'Vencimento',type:'date',showIf:{k:'produto',eq:PRODUTOS_DETALHADOS}},
+    {k:'liquidez',label:'Liquidez diária?',type:'select',options:['Não','Sim'],showIf:{k:'produto',eq:PRODUTOS_DETALHADOS}},
+    {k:'simplificado',type:'info',text:'Não precisa especificar quais agora.',showIf:{k:'produto',eq:PRODUTOS_SIMPLIFICADOS}},
+    {k:'tipo',label:'Entra como',type:'select',options:['Investimento','Previdência','Reserva','Outro']},
+    {k:'tipoOutro',label:'Qual?',showIf:{k:'tipo',eq:['Outro']}},
+  ]));
+
+  function camposObjetivo(){
+    return [
+      {k:'objetivo',label:'Objetivo'},
+      {k:'valor',label:'Valor estimado',money:true},
+      {k:'prazo',label:'Prazo alvo'},
+      {k:'aporte',label:'Ideia de aporte mensal',money:true},
+    ];
+  }
+  $('addGoalCurto').addEventListener('click',()=>addRepCond($('goalsCurto'),camposObjetivo()));
+  $('addGoalMedio').addEventListener('click',()=>addRepCond($('goalsMedio'),camposObjetivo()));
+  $('addGoalLongo').addEventListener('click',()=>addRepCond($('goalsLongo'),camposObjetivo()));
+
+  $('addOutroCompromisso').addEventListener('click',()=>addRepCond($('outrosCompromissosList'),[
+    {k:'descricao',label:'Descrição'}, {k:'valor',label:'Valor mensal',money:true}
+  ]));
+
+  function repData(id){
+    return qs('.rep',$(id)).map(r=>{
+      const o={}; qs('[data-k]',r).forEach(x=>o[x.dataset.k]=x.value); return o;
+    });
+  }
+  function sumRep(id,key){
+    return repData(id).reduce((s,r)=>s+parseMoeda(r[key]),0);
+  }
+  function repDataNumbers(id){
+    return repData(id).map(r=>{
+      const o={...r};
+      Object.keys(o).forEach(k=>{
+        const limpo=String(o[k]).replace(/^R\$\s?/,'').trim();
+        if(limpo!=='' && /^[0-9.,]+$/.test(limpo)) o[k]=parseFloat(limpo.replace(/\./g,'').replace(',','.'));
+      });
+      return o;
+    });
+  }
+
+  // ---- Campos estáticos condicionais (moradia, plano de saúde, seguro de vida) ----
+  function atualizarCondicionaisEstaticos(){
+    const moradia=val('moradiaTipo');
+    const wrapImovel=root.querySelector('[data-fieldwrap="moradiaValorImovel"]');
+    const wrapAluguel=root.querySelector('[data-fieldwrap="moradiaValorAluguel"]');
+    if(wrapImovel) wrapImovel.style.display = moradia==='Quitada' ? '' : 'none';
+    if(wrapAluguel) wrapAluguel.style.display = moradia==='Aluguel' ? '' : 'none';
+
+    const saude=val('saudePlano');
+    const wrapQual=root.querySelector('[data-fieldwrap="saudeQual"]');
+    const wrapValor=root.querySelector('[data-fieldwrap="saudeValor"]');
+    if(wrapQual) wrapQual.style.display = saude==='Sim' ? '' : 'none';
+    if(wrapValor) wrapValor.style.display = saude==='Sim' ? '' : 'none';
+    if(saude!=='Sim' && $('saudeValor')) $('saudeValor').value='R$ 0,00';
+
+    const temSeguro=val('temSeguroVida');
+    if($('seguroVidaDetalhe')) $('seguroVidaDetalhe').style.display = temSeguro==='Sim' ? '' : 'none';
+    if(temSeguro!=='Sim' && $('vidaAtual')) $('vidaAtual').value='R$ 0,00';
+  }
+
+  function updateCash(){
+    const income=['salario','prolabore','lucros','comissoes','aluguéis','rendInvest','outrasReceitas'].reduce((s,id)=>s+num(id),0);
+    const moradiaExpense = val('moradiaTipo')==='Aluguel' ? num('moradiaValorAluguel') : 0;
+    const saudeExpense = val('saudePlano')==='Sim' ? num('saudeValor') : 0;
+    const expenses=moradiaExpense+saudeExpense+['transporte','educacao','compras','outrosGastos'].reduce((s,id)=>s+num(id),0);
+    const commitments=['financ','consorcio','seguroMes'].reduce((s,id)=>s+num(id),0)+sumRep('outrosCompromissosList','valor');
+    const cash=Math.max(0,income-expenses-commitments);
+    $('mRenda').textContent=money(income); $('mCusto').textContent=money(expenses); $('mCaixa').textContent=money(cash); $('mTaxa').textContent=pct(income?cash/income*100:0);
+    $('cashNotice').className='notice '+(income&&cash/income<.3?'warn':'');
+    $('cashNotice').textContent=income?(cash/income>=.3?'Orçamento com caixa livre igual ou superior a 30% da renda.':'Atenção: o caixa livre está abaixo de 30% da renda. Vale investigar custos e compromissos.'):'Preencha os valores para gerar o diagnóstico do caixa.';
+    return {income,expenses,commitments,cash};
+  }
+  function updatePatrimony(){
+    const properties=sumRep('properties','valor'), vehicles=sumRep('vehicles','valor'), companies=sumRep('companies','valor');
+    const debts=sumRep('debts','saldo');
+    const invest=sumRep('investments','valor');
+    const real=properties+vehicles+companies;
+    $('mAtivos').textContent=money(real);$('mInvest').textContent=money(invest);$('mPassivos').textContent=money(debts);$('mPL').textContent=money(real+invest-debts);
+    return {properties,vehicles,companies,debts,invest,real,pl:real+invest-debts};
+  }
+  function updatePortfolio(){
+    const rows=repData('investments'), total=rows.reduce((s,r)=>s+parseMoeda(r.valor),0);
+    const liq=rows.filter(r=>r.liquidez==='Sim').reduce((s,r)=>s+parseMoeda(r.valor),0);
+    $('mCarteira').textContent=money(total);$('mLiquidez').textContent=money(liq);$('mPctLiq').textContent=pct(total?liq/total*100:0);$('mMetaLiq').textContent=money(total*.30);
+    $('liqNotice').className='notice '+(total&&liq/total<.30?'warn':'');
+    $('liqNotice').textContent=total?(liq/total>=.30?'Carteira em conformidade com a referência de 30% em liquidez diária.':`Abaixo da referência de 30%: faltam ${money(total*.30-liq)} para atingir a meta de liquidez.`):'A regra de referência do modelo C2LZ é 30% da carteira em liquidez diária.';
+    return {total,liq};
+  }
+  function updateProtection(){
+    const caixa=updateCash(), p=updatePatrimony();
+    const deps=num('custoDeps'), edu=num('eduProver'), inv=p.invest;
+    const anos=Math.max(1,num('anosProtecao')||10), rate=Math.max(.001,num('taxaReal')/100||.04);
+    const baseRenda=caixa.expenses;
+    const baseVida= num('garantir') && val('garantir')==='Sim' ? (val('modoProtecao')==='Vitalícia'?deps*12/rate:deps*12*anos)+edu : 0;
+    const piso=(p.real+inv)*.08+(p.real+inv)*.10+p.debts;
+    const necessidadeVida=Math.max(0,piso+baseVida-inv);
+    const dg=baseRenda*18+num('tratamento');
+    const inval=baseRenda*12*anos+0;
+    const lacuna=Math.max(0,necessidadeVida-num('vidaAtual'))+Math.max(0,dg-num('dgAtual'))+Math.max(0,inval-num('invalidezAtual'));
+    $('protVida').textContent=money(necessidadeVida);$('protDG').textContent=money(dg);$('protInv').textContent=money(inval);$('protLacuna').textContent=money(lacuna);
+    return {necessidadeVida,dg,inval,lacuna};
+  }
+  function phaseGuess(){
+    const cash=updateCash(), p=updatePatrimony();
+    const monthly= Math.max(1,cash.expenses);
+    const multiple=p.invest/monthly;
+    const nprops=repData('properties').length;
+    let idx=0;
+    if(multiple>100 || (nprops>10 && cash.income>0)) idx=3;
+    else if(multiple>30 || nprops>=3) idx=2;
+    else if(multiple>10 || nprops>=1) idx=1;
+    return idx;
+  }
+  function updateGoals(){
+    const age=ageFromDate(val('nascimento')); $('idadeAuto').value=age||'';
+    const meta=num('idadeMeta');
+    if(age && meta>age){
+      $('anosParaAposentar').textContent=`Temos ${meta-age} anos para atingir esse objetivo.`;
+    }else{
+      $('anosParaAposentar').textContent='';
+    }
+  }
+  function finalSummary(){
+    const c=updateCash(), p=updatePatrimony(), i=updatePortfolio(), prot=updateProtection();
+    const age=ageFromDate(val('nascimento')), idx=phaseGuess(), ph=phases[idx];
+    const years=Math.max(0,num('idadeMeta')-age);
+    const annualReal=.04, monthlyRate=Math.pow(1+annualReal,1/12)-1;
+    const start=i.total, monthly=c.cash, months=years*12;
+    let fv=start;
+    for(let m=0;m<months;m++) fv=fv*(1+monthlyRate)+monthly;
+    const target= num('rendaApos') || c.expenses;
+    const capitalNeed=target*12/.04;
+    const lines=[
+      `<div class="summary"><div class="metric"><span>Fase indicativa</span><strong>${ph.name}</strong></div><div class="metric"><span>Patrimônio líquido</span><strong>${money(p.pl)}</strong></div><div class="metric"><span>Caixa livre</span><strong>${money(c.cash)}</strong></div><div class="metric"><span>Carteira</span><strong>${money(i.total)}</strong></div></div>`,
+      `<div class="notice"><b>Leitura inicial:</b> ${ph.desc} O modelo padrão desta fase direciona ${(ph.app*100).toFixed(0)}% para aplicações, ${(ph.cons*100).toFixed(0)}% para consórcio/financiamento, ${(ph.prev*100).toFixed(0)}% para previdência e ${(ph.seg*100).toFixed(0)}% para seguros.</div>`,
+      `<div class="tablewrap"><table><tr><th>Indicador</th><th class="right">Valor</th></tr><tr><td>Reserva mínima — 6x custo de vida</td><td class="right">${money(c.expenses*6)}</td></tr><tr><td>Liquidez diária atual</td><td class="right">${money(i.liq)} (${pct(i.total?i.liq/i.total*100:0)})</td></tr><tr><td>Capital aproximado para renda passiva de ${money(target)}/mês a 4% real</td><td class="right">${money(capitalNeed)}</td></tr><tr><td>Patrimônio projetado em ${years} anos, mantendo o caixa livre atual e 4% real a.a.</td><td class="right">${money(fv)}</td></tr><tr><td>Lacuna estimada de proteção — vida + DG + invalidez</td><td class="right">${money(prot.lacuna)}</td></tr></table></div>`,
+      `<p class="help">A fase acima é uma classificação indicativa baseada nos dados informados; a definição final deve ser validada pelo consultor. A projeção é ilustrativa e não constitui promessa de rentabilidade.</p>`
+    ];
+    $('finalSummary').innerHTML=lines.join('');
+  }
+  function updateAll(){atualizarCondicionaisEstaticos();updateGoals();updateCash();updatePatrimony();updatePortfolio();updateProtection();if(step===8)finalSummary()}
+
+  root.addEventListener('input',updateAll);
+  root.addEventListener('change',updateAll);
+
+  $('nextBtn').addEventListener('click',()=>{
+    if(step===1 && !val('nome')){showVal('Informe o nome completo antes de continuar.');return}
+    if(step<total){step++;render()}
+  });
+  $('prevBtn').addEventListener('click',()=>{if(step>1){step--;render()}});
+
+  function showVal(t,tipo){$('validation').textContent=t;$('validation').className='notice '+(tipo||'warn');$('validation').style.display='block';window.scrollTo({top:0,behavior:'smooth'});}
+
+  function buildPayload(){
+    const caixa=updateCash(), patr=updatePatrimony(), carteira=updatePortfolio(), prot=updateProtection();
+
+    const patrimonio=[
+      ...repDataNumbers('properties').map(x=>({tipo:'imovel',...x})),
+      ...repDataNumbers('vehicles').map(x=>({tipo:'veiculo',...x})),
+      ...repDataNumbers('companies').map(x=>({tipo:'participacao_empresa',...x})),
+      ...repDataNumbers('debts').map(x=>({tipo:'divida',...x})),
+      {
+        tipo:'moradia',
+        regime:val('moradiaTipo'),
+        valor_imovel: val('moradiaTipo')==='Quitada' ? num('moradiaValorImovel') : null,
+        valor_aluguel_mensal: val('moradiaTipo')==='Aluguel' ? num('moradiaValorAluguel') : null,
+      },
+      {tipo:'resumo',ativos_reais:patr.real,investimentos:patr.invest,passivos:patr.debts,patrimonio_liquido:patr.pl},
+    ];
+
+    const prod=qs('input[name="prod"]:checked').map(x=>x.value);
+    const investimentos=[
+      ...repDataNumbers('investments'),
+      {tipo:'perfil_comportamental',produtos_utilizados:prod,tempo_investindo:val('experiencia'),perda_aceitavel:val('perda'),reacao_a_queda:val('queda')},
+    ];
+
+    const prio=qs('input[name="prio"]:checked').map(x=>x.value);
+    const objetivos=[
+      ...repDataNumbers('goalsCurto').map(x=>({horizonte:'curto_prazo',...x})),
+      ...repDataNumbers('goalsMedio').map(x=>({horizonte:'medio_prazo',...x})),
+      ...repDataNumbers('goalsLongo').map(x=>({horizonte:'longo_prazo',...x})),
+      {tipo:'aposentadoria',idade_atual:ageFromDate(val('nascimento')),idade_meta:num('idadeMeta'),renda_desejada:num('rendaApos'),meta_imoveis_renda:num('imoveisMeta'),como_pensa_atingir:val('comoAtingir')},
+      {tipo:'prioridades',prioridades:prio},
+      {tipo:'maior_dificuldade',descricao:val('maiorDificuldade')},
+    ];
+
+    const protecao=[{
+      tipo:'protecao_atual_e_necessidade',
+      possui_seguro_vida:val('temSeguroVida'),seguro_vida_seguradora:val('seguroVidaQual'),seguro_vida_cobertura_descricao:val('seguroVidaCobre'),
+      seguro_vida_atual:num('vidaAtual'),doencas_graves_atual:num('dgAtual'),invalidez_atual:num('invalidezAtual'),afastamento_atual_mes:num('afastAtual'),
+      custo_mensal_dependentes:num('custoDeps'),educacao_filhos_a_prover:num('eduProver'),tratamento_nao_coberto:num('tratamento'),beneficio_inss_empregador:num('benefAfast'),
+      garantir_padrao_vida:val('garantir'),modo_garantia:val('modoProtecao'),anos_protecao:num('anosProtecao'),taxa_real:num('taxaReal'),
+      necessidade_vida:prot.necessidadeVida,necessidade_dg:prot.dg,necessidade_invalidez:prot.inval,lacuna_total:prot.lacuna,
+    },{
+      tipo:'plano_saude',possui:val('saudePlano'),qual:val('saudeQual'),valor_mensal: val('saudePlano')==='Sim' ? num('saudeValor') : null,
+    }];
+
+    const sucessao=[
+      {tipo:'sucessao_patrimonial',possui_testamento:val('testamento'),bens_particulares:val('bensPart'),pct_patrimonio_comum:num('pctComum'),possui_holding:val('holding'),destino_especifico:val('destinoEspecifico'),previdencia_para_sucessao:val('prevSucessao'),desejos_e_preocupacoes:val('desejosSucessao')},
+      {tipo:'familia_e_dependencia',dependentes:repDataNumbers('dependentsList'),numero_filhos:num('filhos'),numero_dependentes:num('dependentes'),pais_vivos:val('paisVivos'),irmaos:val('irmaos'),situacao_familiar_relevante:val('situacaoFamiliar')},
+    ];
+
+    const insumos={
+      receita_mensal_liquida:caixa.income||null,
+      despesas_mensais:caixa.expenses||null,
+      passivo_total:patr.debts||null,
+      ativos_liquidos_totais:carteira.total||null,
+      ativos_curto_prazo:carteira.liq||null,
+      disponibilidade_para_investir:caixa.cash||null,
+      aporte_mensal_previdencia:val('temPrev')==='Sim'?(num('aportePrev')||null):null,
+      declaracao_completa_inss: val('ir')==='Completa' && val('inss')==='Sim',
+    };
+
+    return {
+      website:val('website'),
+      nome:val('nome'),
+      cpf:val('cpf')||null,
+      email:val('email')||null,
+      telefone:val('telefone')||null,
+      data_nascimento:val('nascimento')||null,
+      estado_civil:val('civil')||null,
+      profissao:val('profissao')||null,
+      cidade:val('cidade')||null,
+      banker_id:val('bankerId')||null,
+      patrimonio, investimentos, objetivos, protecao, sucessao, insumos,
+    };
+  }
+
+  async function carregarBankers(){
+    try{
+      const res=await fetch(API_BASE+'/formulario-publico/bankers');
+      if(!res.ok) return;
+      const bankers=await res.json();
+      const sel=$('bankerId');
+      bankers.forEach(b=>{
+        const opt=document.createElement('option');
+        opt.value=b.id; opt.textContent=b.nome;
+        sel.appendChild(opt);
+      });
+    }catch(e){
+      console.warn('Não foi possível carregar a lista de assessores:',e);
+    }
+  }
+
+  $('form').addEventListener('submit',async e=>{
+    e.preventDefault();
+    if(!val('nome')){step=1;render();showVal('Informe o nome completo antes de enviar.');return}
+    if(!val('nascimento')){step=1;render();showVal('Informe a data de nascimento antes de enviar.');return}
+
+    finalSummary();
+    const btn=$('finishBtn');
+    const textoOriginal=btn.textContent;
+    btn.disabled=true; btn.textContent='Enviando...';
+    $('validation').style.display='none';
+
+    try{
+      const res=await fetch(API_BASE+'/formulario-publico',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(buildPayload()),
+      });
+
+      if(res.status===429){
+        showVal('Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.','error');
+        btn.disabled=false; btn.textContent=textoOriginal;
+        return;
+      }
+      if(!res.ok){
+        const corpo=await res.json().catch(()=>({}));
+        showVal('Não foi possível enviar agora ('+(corpo.detail||res.status)+'). Tente novamente em instantes ou fale direto com seu assessor.','error');
+        btn.disabled=false; btn.textContent=textoOriginal;
+        return;
+      }
+
+      $('formPanel').querySelector('#form').style.display='none';
+      $('sucessoPanel').classList.add('active');
+      document.querySelector('.steps').style.display='none';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(err){
+      console.error(err);
+      showVal('Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.','error');
+      btn.disabled=false; btn.textContent=textoOriginal;
+    }
+  });
+
+  $('printBtn').addEventListener('click',()=>window.print());
+  $('exportBtn').addEventListener('click',()=>{
+    const data=buildPayload();
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='c2lz-planejamento-'+(val('nome')||'cliente').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.json';a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  });
+
+  // Start with one optional row in the most important repeaters.
+  $('addDependent').click(); $('addProperty').click(); $('addInvestment').click();
+  $('addGoalCurto').click(); $('addGoalMedio').click(); $('addGoalLongo').click();
+  carregarBankers();
+  render();
+})();
+</script>
+</body>
+</html>

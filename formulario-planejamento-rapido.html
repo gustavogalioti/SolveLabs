@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C2LZ — Diagnóstico Financeiro Rápido</title>
+<style>
+:root{
+  --bg:#EEF1EF; --bg-2:#E3E8E4; --panel:#FFFFFF; --panel-2:#FFFFFF; --panel-3:#E3E8E4;
+  --border:#D7DED9; --border-soft:#E3E8E4;
+  --ink:#142019; --muted:#55695D; --faint:#7C9186;
+  --gold:#c99a54; --gold-bright:#e6c07f; --gold-dim:#4a3c22;
+  --mint:#2fe3ab; --mint-dim:#123a2c;
+  --danger:#e5786a; --danger-dim:#3a1c17;
+  --shadow:0 8px 28px rgba(20,32,25,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,Arial,sans-serif;color:var(--ink)}
+.app{max-width:1100px;margin:auto;padding:24px}
+.header{background:var(--panel-2);color:var(--ink);border:1px solid var(--border);border-radius:18px;padding:26px 28px;margin-bottom:18px}
+.brand{font-size:13px;letter-spacing:1.4px;color:var(--gold);font-weight:800}
+h1{margin:8px 0 6px;font-size:26px;font-family:'Space Grotesk',Inter,Arial,sans-serif}
+.header p{margin:0;color:var(--muted)}
+.progress{height:8px;background:var(--panel-3);border-radius:99px;overflow:hidden;margin:16px 0 10px}
+.progress i{display:block;height:100%;background:var(--gold);width:16.6%;transition:.25s}
+.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:18px}
+.step{border:1px solid var(--border);background:var(--panel-2);border-radius:10px;padding:9px 6px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer}
+.step.active{border-color:var(--gold);color:var(--gold-bright);font-weight:800;background:var(--gold-dim)}
+.step.done{color:var(--ink)}
+.panel{background:var(--panel-2);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:24px}
+.section{display:none}.section.active{display:block}
+.kicker{font-size:12px;font-weight:800;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+h2{margin:5px 0 7px;font-size:23px;color:var(--ink);font-family:'Space Grotesk',Inter,Arial,sans-serif}
+.desc{color:var(--muted);margin-top:0;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+label{font-size:13px;font-weight:700}
+input,select,textarea{width:100%;min-height:44px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:16px;background:var(--panel);color:var(--ink);outline:none}
+textarea{min-height:88px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,154,84,.18)}
+.help{font-size:12px;color:var(--muted)}
+.card{border:1px solid var(--border);border-radius:13px;padding:16px;margin:16px 0;background:var(--bg)}
+.card h3{margin:0 0 12px;color:var(--ink);font-size:16px}
+.card.destaque{border-color:var(--gold);background:var(--gold-dim)}
+.card.destaque h3,.card.destaque label,.card.destaque .help{color:var(--gold-bright)}
+.repeater{display:grid;gap:10px}
+.rep{border:1px solid var(--border);border-radius:12px;padding:13px;background:var(--panel-2)}
+.rep .grid{margin:0}
+.grupo-prazo{margin-bottom:16px}
+.grupo-prazo:last-child{margin-bottom:0}
+.subtitulo-grupo{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gold);margin:0 0 8px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+button{border:0;border-radius:10px;padding:12px 17px;font-size:14px;font-weight:800;cursor:pointer;min-height:44px}
+.primary{background:var(--gold);color:var(--ink)}.secondary{background:var(--panel-3);color:var(--ink)}
+.teal{background:var(--gold);color:var(--ink)}.danger{background:var(--danger-dim);color:var(--danger)}
+.toggle2{display:flex;gap:10px;margin-bottom:14px}
+.toggle2 button{flex:1;background:var(--panel-3);color:var(--muted)}
+.toggle2 button.active{background:var(--gold);color:var(--ink)}
+button:disabled{opacity:.55;cursor:not-allowed}
+.checkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.check{border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;gap:8px;align-items:center;font-size:13px}
+.check input{min-height:auto;width:18px}
+.notice{padding:13px 15px;border-radius:11px;background:var(--mint-dim);border-left:4px solid var(--mint);margin:15px 0;line-height:1.45;color:var(--mint)}
+.notice b{color:inherit}
+.warn{background:var(--gold-dim);border-left-color:var(--gold);color:var(--gold-bright)}
+.error{background:var(--danger-dim);border-left-color:var(--danger);color:var(--danger)}
+.footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+.hp{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden}
+.sucesso-panel{display:none;text-align:center;padding:40px 20px}
+.sucesso-panel.active{display:block}
+.sucesso-panel h2{color:var(--ink)}
+input[type="file"]{padding:9px;min-height:auto}
+@media(max-width:800px){
+ .app{padding:12px}.steps{grid-template-columns:repeat(3,1fr)}.grid,.grid3,.checkgrid{grid-template-columns:1fr}
+ .panel{padding:16px}h1{font-size:21px}.step{font-size:10px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="header">
+    <div class="brand">C2LZ CAPITAL PARTNERS</div>
+    <h1>Diagnóstico Financeiro Rápido</h1>
+    <p>Um retrato inicial do seu momento financeiro, em poucos minutos — o suficiente pra gente começar a conversar.</p>
+    <div class="progress"><i id="progressBar"></i></div>
+    <div id="progressText">Etapa 1 de 6</div>
+  </header>
+
+  <nav class="steps" id="steps"></nav>
+
+  <main class="panel" id="formPanel">
+    <form id="form">
+      <div class="hp" aria-hidden="true">
+        <label for="website">Deixe este campo em branco</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <section class="section active" data-step="1">
+        <div class="kicker">01 · Você</div><h2>Identificação e família</h2>
+        <p class="desc">O básico pra gente saber com quem está falando.</p>
+        <div class="card destaque">
+          <h3>Assessor / Banker responsável</h3>
+          <div class="field">
+            <label for="bankerId">Quem está te atendendo na C2LZ? *</label>
+            <select id="bankerId">
+              <option value="">Ainda não tenho um assessor</option>
+            </select>
+            <p class="help">Se você já conversou com alguém da C2LZ, selecione o nome dessa pessoa. Se não, sem problema — alguém do time vai entrar em contato.</p>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field"><label>Nome completo *</label><input id="nome" required></div>
+          <div class="field"><label>Idade</label><input id="idade" type="number" min="0" max="120"></div>
+          <div class="field"><label>Telefone</label><input id="telefone" inputmode="tel" placeholder="(00) 00000-0000" maxlength="15"></div>
+          <div class="field"><label>E-mail</label><input id="email" type="email"></div>
+          <div class="field"><label>Profissão</label><input id="profissao"></div>
+          <div class="field"><label>Empresa</label><input id="empresa"></div>
+          <div class="field"><label>Tem filhos?</label><select id="temFilhos"><option>Não</option><option>Sim</option></select></div>
+          <div class="field" data-fieldwrap="qtdFilhos" style="display:none"><label>Quantos?</label><input id="qtdFilhos" type="number" min="0"></div>
+          <div class="field"><label>É casado(a) / tem união estável?</label><select id="casado"><option>Não</option><option>Sim</option></select></div>
+        </div>
+      </section>
+
+      <section class="section" data-step="2">
+        <div class="kicker">02 · Seus números</div><h2>Renda, poupança e patrimônio</h2>
+        <p class="desc">Só o essencial para entender sua capacidade financeira hoje.</p>
+        <div class="grid grid3">
+          <div class="field"><label>Quanto você ganha por mês?</label><input class="money" id="rendaMensal" value="R$ 0,00"></div>
+          <div class="field"><label>Quanto você gasta por mês?</label><input class="money" id="despesaMensal" value="R$ 0,00"></div>
+          <div class="field"><label>Quanto consegue poupar por mês?</label><input class="money" id="poupancaMensal" value="R$ 0,00"></div>
+        </div>
+        <div class="card"><h3>Patrimônio estimado</h3>
+          <div class="field">
+            <label>Somando investimentos, imóveis, veículos — quanto você acha que tem hoje, aproximadamente?</label>
+            <input class="money" id="patrimonioEstimado" value="R$ 0,00">
+            <p class="help">Não precisa ser exato — é só uma referência inicial.</p>
+          </div>
+        </div>
+        <div class="card"><h3>Aposentadoria</h3><div class="grid">
+          <div class="field"><label>Com quantos anos gostaria de se aposentar?</label><input id="idadeAposentadoria" type="number" min="18" max="100" value="65"></div>
+          <div class="field"><label>Ganhando quanto? (seu patrimônio trabalhando por você)</label><input class="money" id="rendaPassivaDesejada" value="R$ 0,00"></div>
+        </div></div>
+      </section>
+
+      <section class="section" data-step="3">
+        <div class="kicker">03 · Seus investimentos</div><h2>Carteira atual e relacionamento</h2>
+        <div class="card"><h3>Onde você investe hoje?</h3>
+          <div class="grid">
+            <div class="field full"><label>Instituição financeira</label><input id="instituicaoFinanceira" placeholder="Ex.: XP, BTG, banco tradicional..."></div>
+          </div>
+          <div class="toggle2" style="margin-top:14px">
+            <button type="button" id="btnModoAnexo">Anexar carteira (PDF/Excel)</button>
+            <button type="button" id="btnModoManual">Preencher manualmente</button>
+          </div>
+          <div id="blocoAnexo" style="display:none">
+            <div class="field"><label>Anexe seu extrato ou posição de carteira</label><input type="file" id="arquivoCarteira" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"></div>
+            <p class="help">Aceita PDF, Word, Excel ou imagem — até 15MB.</p>
+          </div>
+          <div id="blocoManual" style="display:none">
+            <div id="investimentosManuais" class="repeater"></div>
+            <button type="button" class="secondary" id="addInvestimentoManual" style="margin-top:10px">+ Adicionar investimento</button>
+          </div>
+        </div>
+        <div class="card"><h3>Outras rendas</h3><div class="grid grid3">
+          <div class="field"><label>Renda de outro trabalho</label><input class="money" id="rendaTrabalhoExtra" value="R$ 0,00"></div>
+          <div class="field"><label>Aluguel que recebe</label><input class="money" id="aluguelRecebido" value="R$ 0,00"></div>
+          <div class="field"><label>Dividendos de empresa</label><input class="money" id="dividendosRecebidos" value="R$ 0,00"></div>
+        </div></div>
+        <div class="card"><h3>O que você acha da instituição atual?</h3><div class="grid grid3">
+          <div class="field"><label>Qual cartão possui?</label><input id="cartaoAtual" placeholder="Ex.: Black, Infinite, não tenho..."></div>
+          <div class="field"><label>Tem aplicação/atendimento exclusivo?</label><select id="aplicacaoExclusiva"><option>Não</option><option>Sim</option></select></div>
+          <div class="field"><label>Relacionamento com o gerente</label><select id="relacionamentoGerente"><option>Bom</option><option>Regular</option><option>Ruim</option><option>Não tenho gerente</option></select></div>
+          <div class="field"><label>Recebe relatórios/informações da instituição?</label><select id="relatoriosInformacoes"><option>Não</option><option>Sim</option></select></div>
+          <div class="field full"><label>O que faz você gostar ou não gostar de onde está hoje?</label><textarea id="observacoesBeneficios"></textarea></div>
+        </div></div>
+      </section>
+
+      <section class="section" data-step="4">
+        <div class="kicker">04 · Seu patrimônio físico</div><h2>Imóvel e veículo</h2>
+        <div class="card"><h3>Imóvel</h3><div class="grid">
+          <div class="field"><label>Tem imóvel próprio?</label><select id="temImovel"><option>Não</option><option>Sim</option></select></div>
+          <div class="field" data-fieldwrap="aluguelMensalImovel" style="display:none"><label>Quanto paga de aluguel por mês?</label><input class="money" id="aluguelMensalImovel" value="R$ 0,00"></div>
+          <div class="field" data-fieldwrap="valorEstimadoImovel"><label>Valor estimado do imóvel</label><input class="money" id="valorEstimadoImovel" value="R$ 0,00"></div>
+        </div></div>
+        <div class="card"><h3>Veículo</h3><div class="grid">
+          <div class="field"><label>Tem carro próprio?</label><select id="temCarro"><option>Não</option><option>Sim</option></select></div>
+          <div class="field" data-fieldwrap="querTerCarro" style="display:none"><label>Pretende ter um?</label><select id="querTerCarro"><option>Não</option><option>Sim</option></select></div>
+          <div class="field" data-fieldwrap="situacaoCarro"><label>Situação</label><select id="situacaoCarro"><option>Quitado</option><option>Financiado</option></select></div>
+          <div class="field" data-fieldwrap="valorEstimadoCarro"><label>Valor estimado</label><input class="money" id="valorEstimadoCarro" value="R$ 0,00"></div>
+          <div class="field" data-fieldwrap="valorParcelaCarro" style="display:none"><label>Valor da parcela</label><input class="money" id="valorParcelaCarro" value="R$ 0,00"></div>
+          <div class="field" data-fieldwrap="parcelasTotaisCarro" style="display:none"><label>Quantas parcelas no total?</label><input id="parcelasTotaisCarro" type="number" min="0"></div>
+          <div class="field" data-fieldwrap="parcelasRestantesCarro" style="display:none"><label>Quantas faltam?</label><input id="parcelasRestantesCarro" type="number" min="0"></div>
+        </div></div>
+      </section>
+
+      <section class="section" data-step="5">
+        <div class="kicker">05 · Seus objetivos</div><h2>O que você quer alcançar</h2>
+        <div class="card"><h3>Objetivos de curto, médio e longo prazo</h3>
+          <div class="grupo-prazo">
+            <p class="subtitulo-grupo">Curto prazo</p>
+            <div id="goalsCurto" class="repeater"></div>
+            <button type="button" class="secondary" id="addGoalCurto" style="margin-top:8px">+ Adicionar objetivo</button>
+          </div>
+          <div class="grupo-prazo">
+            <p class="subtitulo-grupo">Médio prazo</p>
+            <div id="goalsMedio" class="repeater"></div>
+            <button type="button" class="secondary" id="addGoalMedio" style="margin-top:8px">+ Adicionar objetivo</button>
+          </div>
+          <div class="grupo-prazo">
+            <p class="subtitulo-grupo">Longo prazo</p>
+            <div id="goalsLongo" class="repeater"></div>
+            <button type="button" class="secondary" id="addGoalLongo" style="margin-top:8px">+ Adicionar objetivo</button>
+          </div>
+        </div>
+        <div class="card"><h3>Prioridades</h3><div class="checkgrid">
+          <label class="check"><input type="checkbox" name="prio" value="Aposentadoria"> Aposentadoria</label>
+          <label class="check"><input type="checkbox" name="prio" value="Segurança"> Segurança</label>
+          <label class="check"><input type="checkbox" name="prio" value="Crescimento patrimonial"> Crescimento patrimonial</label>
+          <label class="check"><input type="checkbox" name="prio" value="Imóvel"> Compra de imóvel</label>
+          <label class="check"><input type="checkbox" name="prio" value="Educação dos filhos"> Educação dos filhos</label>
+          <label class="check"><input type="checkbox" name="prio" value="Sucessão"> Sucessão</label>
+          <label class="check"><input type="checkbox" name="prio" value="Proteção"> Proteção</label>
+          <label class="check"><input type="checkbox" name="prio" value="Redução de dívidas"> Redução de dívidas</label>
+        </div></div>
+        <div class="field full"><label>O que hoje é sua maior dificuldade olhando para seu patrimônio/finanças?</label><textarea id="maiorDificuldade"></textarea></div>
+      </section>
+
+      <section class="section" data-step="6">
+        <div class="kicker">06 · Proteção e legado</div><h2>Seguro e sucessão</h2>
+        <div class="card"><h3>Seguro de vida</h3><div class="grid">
+          <div class="field"><label>Você tem seguro de vida?</label><select id="temSeguroVida"><option>Não</option><option>Sim</option></select></div>
+          <div class="field" data-fieldwrap="qualSeguradora" style="display:none"><label>Qual seguradora/produto?</label><input id="qualSeguradora"></div>
+          <div class="field" data-fieldwrap="valorCobertura" style="display:none"><label>Valor da cobertura</label><input class="money" id="valorCobertura" value="R$ 0,00"></div>
+          <div class="field" data-fieldwrap="entendeParaQueServe"><label>Você entende para que serve um seguro de vida?</label><select id="entendeParaQueServe"><option>Não</option><option>Sim</option></select></div>
+        </div></div>
+
+        <div class="card" id="cardSucessao" style="display:none"><h3>Sucessão patrimonial</h3>
+          <p class="help" style="margin-top:-6px;margin-bottom:12px">Como seu patrimônio está numa faixa mais relevante, vale já mapear isso.</p>
+          <div class="grid">
+            <div class="field"><label>Possui testamento?</label><select id="possuiTestamento"><option>Não</option><option>Sim</option></select></div>
+            <div class="field"><label>Possui holding patrimonial?</label><select id="possuiHolding"><option>Não</option><option>Sim</option><option>Em estudo</option></select></div>
+            <div class="field full"><label>Desejos ou preocupações sucessórias</label><textarea id="desejosSucessao" placeholder="Ex.: preservar empresa, evitar conflitos, proteger cônjuge, organizar imóveis..."></textarea></div>
+          </div>
+        </div>
+      </section>
+
+      <div id="validation" class="notice warn" style="display:none"></div>
+      <div class="btnrow">
+        <button type="button" class="secondary" id="prevBtn">← Voltar</button>
+        <button type="button" class="primary" id="nextBtn">Continuar →</button>
+        <button type="submit" class="teal" id="finishBtn" style="display:none">Enviar para a C2LZ</button>
+      </div>
+    </form>
+
+    <div class="sucesso-panel" id="sucessoPanel">
+      <h2>Recebemos seu diagnóstico 🎉</h2>
+      <p class="desc">Obrigado pelo seu tempo. Um assessor da C2LZ Capital Partners vai analisar as suas respostas e entrar em contato em breve.</p>
+    </div>
+  </main>
+  <div class="footer">C2LZ Capital Partners · Diagnóstico financeiro rápido · Documento confidencial</div>
+</div>
+
+<script>
+(function(){
+  const root=document.getElementById('app');
+  if(root.dataset.ready) return; root.dataset.ready='1';
+  let step=1;
+  const total=6;
+  const $=id=>document.getElementById(id);
+  const qs=(s,el=root)=>Array.from(el.querySelectorAll(s));
+  const val=id=>($(id)?.value||'');
+  const parseMoeda=s=>{
+    let x=String(s||'').replace(/^R\$\s?/,'').replace(/\./g,'').replace(',','.');
+    x=x.replace(/[^0-9.-]/g,'');
+    return parseFloat(x)||0;
+  };
+  const num=id=>parseMoeda(val(id));
+
+  const API_BASE='https://c2lz-crm-api.onrender.com';
+  let modoInvestimentos='manual';
+
+  function renderSteps(){
+    const names=['Você','Números','Investimentos','Patrimônio','Objetivos','Proteção'];
+    $('steps').innerHTML=names.map((n,i)=>`<div class="step ${i+1===step?'active':''} ${i+1<step?'done':''}" data-go="${i+1}">${String(i+1).padStart(2,'0')} · ${n}</div>`).join('');
+    qs('.step').forEach(x=>x.addEventListener('click',()=>{step=Number(x.dataset.go);render() }));
+    $('progressBar').style.width=(step/total*100)+'%';
+    $('progressText').textContent=`Etapa ${step} de ${total}`;
+  }
+  function render(){
+    qs('.section').forEach(s=>s.classList.toggle('active',Number(s.dataset.step)===step));
+    renderSteps();
+    $('prevBtn').style.display=step===1?'none':'inline-block';
+    $('nextBtn').style.display=step===total?'none':'inline-block';
+    $('finishBtn').style.display=step===total?'inline-block':'none';
+    $('validation').style.display='none';
+    atualizarCondicionais();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // ---- Máscaras ----
+  function maskTelefone(v){
+    v=v.replace(/\D/g,'').slice(0,11);
+    if(v.length>10) return v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3').trim();
+    if(v.length>6) return v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3').trim();
+    if(v.length>2) return v.replace(/(\d{2})(\d{0,5})/,'($1) $2').trim();
+    if(v.length>0) return v.replace(/(\d*)/,'($1').trim();
+    return '';
+  }
+  function maskMoeda(v){
+    let digits=v.replace(/\D/g,'');
+    digits=digits.replace(/^0+(?=\d)/,'');
+    if(!digits) digits='0';
+    if(digits.length<3) digits=digits.padStart(3,'0');
+    let cents=digits.slice(-2), intPart=digits.slice(0,-2).replace(/^0+(?=\d)/,'')||'0';
+    intPart=intPart.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+    return 'R$ '+intPart+','+cents;
+  }
+  root.addEventListener('input',e=>{
+    const t=e.target;
+    if(t.id==='telefone') t.value=maskTelefone(t.value);
+    else if(t.classList && t.classList.contains('money')) t.value=maskMoeda(t.value);
+  });
+  root.addEventListener('focusin',e=>{
+    if(e.target.classList && e.target.classList.contains('money')) e.target.select();
+  });
+
+  // ---- Repetidor genérico, com suporte a campo condicional (showIf) ----
+  function addRepCond(container, fields){
+    const el=document.createElement('div'); el.className='rep';
+    el.innerHTML='<div class="grid">'+fields.map(f=>{
+      const type=f.type||'text', opts=f.options?`<option>${f.options.join('</option><option>')}</option>`:'';
+      const valAttr = f.money ? ' value="R$ 0,00"' : '';
+      return `<div class="field ${f.full?'full':''}" data-fieldwrap="${f.k}">
+        <label>${f.label}</label>
+        ${type==='select'?`<select data-k="${f.k}">${opts}</select>`:`<input data-k="${f.k}" ${type==='date'?'type="date"':(type==='number'?'type="number" min="0"':'')} class="${f.money?'money':''}" placeholder="${f.placeholder||''}"${valAttr}>`}
+      </div>`;
+    }).join('')+'</div><div class="btnrow"><button type="button" class="danger remove">Remover</button></div>';
+
+    function atualizarVisibilidade(){
+      fields.forEach(f=>{
+        if(!f.showIf) return;
+        const wrap=el.querySelector(`[data-fieldwrap="${f.k}"]`);
+        const ctrl=el.querySelector(`[data-k="${f.showIf.k}"]`);
+        if(!wrap) return;
+        wrap.style.display = (ctrl && f.showIf.eq.includes(ctrl.value)) ? '' : 'none';
+      });
+    }
+    el.addEventListener('input',atualizarVisibilidade);
+    el.addEventListener('change',atualizarVisibilidade);
+    el.querySelector('.remove').addEventListener('click',()=>{el.remove()});
+    container.appendChild(el);
+    atualizarVisibilidade();
+  }
+
+  $('addInvestimentoManual').addEventListener('click',()=>addRepCond($('investimentosManuais'),[
+    {k:'categoria',label:'Categoria',type:'select',options:['Reserva de emergência','Renda fixa','Renda variável','Previdência','Outros']},
+    {k:'nome',label:'Nome / produto'},
+    {k:'valor',label:'Valor',money:true},
+    {k:'vencimento',label:'Vencimento (se tiver)',type:'date'},
+  ]));
+
+  function camposObjetivo(){
+    return [{k:'objetivo',label:'Objetivo'},{k:'valor',label:'Valor estimado / acha que precisa ter',money:true}];
+  }
+  $('addGoalCurto').addEventListener('click',()=>addRepCond($('goalsCurto'),camposObjetivo()));
+  $('addGoalMedio').addEventListener('click',()=>addRepCond($('goalsMedio'),camposObjetivo()));
+  $('addGoalLongo').addEventListener('click',()=>addRepCond($('goalsLongo'),camposObjetivo()));
+
+  function repData(id){
+    return qs('.rep',$(id)).map(r=>{
+      const o={}; qs('[data-k]',r).forEach(x=>o[x.dataset.k]=x.value); return o;
+    });
+  }
+  function repDataNumbers(id){
+    return repData(id).map(r=>{
+      const o={...r};
+      Object.keys(o).forEach(k=>{
+        const limpo=String(o[k]).replace(/^R\$\s?/,'').trim();
+        if(limpo!=='' && /^[0-9.,]+$/.test(limpo)) o[k]=parseFloat(limpo.replace(/\./g,'').replace(',','.'));
+      });
+      return o;
+    });
+  }
+
+  // ---- Toggle anexar vs manual ----
+  function setModoInvestimentos(modo){
+    modoInvestimentos=modo;
+    $('btnModoAnexo').classList.toggle('active',modo==='anexo');
+    $('btnModoManual').classList.toggle('active',modo==='manual');
+    $('blocoAnexo').style.display = modo==='anexo' ? '' : 'none';
+    $('blocoManual').style.display = modo==='manual' ? '' : 'none';
+  }
+  $('btnModoAnexo').addEventListener('click',()=>setModoInvestimentos('anexo'));
+  $('btnModoManual').addEventListener('click',()=>setModoInvestimentos('manual'));
+
+  // ---- Condicionais estáticos ----
+  function mostrar(id,visivel){
+    const wrap=root.querySelector(`[data-fieldwrap="${id}"]`);
+    if(wrap) wrap.style.display = visivel ? '' : 'none';
+  }
+  function mostrarSucessao(){
+    return num('patrimonioEstimado')>=500000 || num('idade')>60;
+  }
+  function atualizarCondicionais(){
+    mostrar('qtdFilhos', val('temFilhos')==='Sim');
+
+    mostrar('aluguelMensalImovel', val('temImovel')==='Não');
+    mostrar('valorEstimadoImovel', val('temImovel')==='Sim');
+
+    const temCarro=val('temCarro');
+    mostrar('querTerCarro', temCarro==='Não');
+    mostrar('situacaoCarro', temCarro==='Sim');
+    const financiado = temCarro==='Sim' && val('situacaoCarro')==='Financiado';
+    const quitado = temCarro==='Sim' && val('situacaoCarro')==='Quitado';
+    mostrar('valorEstimadoCarro', quitado);
+    mostrar('valorParcelaCarro', financiado);
+    mostrar('parcelasTotaisCarro', financiado);
+    mostrar('parcelasRestantesCarro', financiado);
+
+    const temSeguro=val('temSeguroVida')==='Sim';
+    mostrar('qualSeguradora', temSeguro);
+    mostrar('valorCobertura', temSeguro);
+    mostrar('entendeParaQueServe', !temSeguro);
+
+    $('cardSucessao').style.display = mostrarSucessao() ? '' : 'none';
+  }
+  root.addEventListener('input',atualizarCondicionais);
+  root.addEventListener('change',atualizarCondicionais);
+
+  $('nextBtn').addEventListener('click',()=>{
+    if(step===1 && !val('nome')){showVal('Informe o nome completo antes de continuar.');return}
+    if(step<total){step++;render()}
+  });
+  $('prevBtn').addEventListener('click',()=>{if(step>1){step--;render()}});
+
+  function showVal(t,tipo){$('validation').textContent=t;$('validation').className='notice '+(tipo||'warn');$('validation').style.display='block';window.scrollTo({top:0,behavior:'smooth'});}
+
+  function buildPayload(){
+    const patrimonio=[
+      {tipo:'identificacao_extra', idade:num('idade')||null, empresa:val('empresa')||null, tem_filhos:val('temFilhos'), qtd_filhos: val('temFilhos')==='Sim'?(num('qtdFilhos')||null):null, casado:val('casado')},
+      {tipo:'estimativa_patrimonio_total', valor:num('patrimonioEstimado')},
+      {tipo:'imovel', tem_imovel:val('temImovel'), aluguel_mensal: val('temImovel')==='Não'?num('aluguelMensalImovel'):null, valor_estimado: val('temImovel')==='Sim'?num('valorEstimadoImovel'):null},
+      {tipo:'veiculo', tem_veiculo:val('temCarro'), quer_ter: val('temCarro')==='Não'?val('querTerCarro'):null, situacao: val('temCarro')==='Sim'?val('situacaoCarro'):null,
+        valor_estimado: (val('temCarro')==='Sim' && val('situacaoCarro')==='Quitado') ? num('valorEstimadoCarro') : null,
+        valor_parcela: (val('temCarro')==='Sim' && val('situacaoCarro')==='Financiado') ? num('valorParcelaCarro') : null,
+        parcelas_totais: (val('temCarro')==='Sim' && val('situacaoCarro')==='Financiado') ? (num('parcelasTotaisCarro')||null) : null,
+        parcelas_restantes: (val('temCarro')==='Sim' && val('situacaoCarro')==='Financiado') ? (num('parcelasRestantesCarro')||null) : null,
+      },
+    ];
+
+    const arquivo=$('arquivoCarteira').files[0];
+    const investimentos=[
+      {tipo:'resumo_investimentos', instituicao_financeira:val('instituicaoFinanceira')||null, modo:modoInvestimentos, possui_anexo: modoInvestimentos==='anexo' && !!arquivo},
+      ...(modoInvestimentos==='manual' ? repDataNumbers('investimentosManuais') : []),
+      {tipo:'rendas_extra', trabalho_extra:num('rendaTrabalhoExtra')||null, aluguel_recebido:num('aluguelRecebido')||null, dividendos:num('dividendosRecebidos')||null},
+      {tipo:'beneficios_atuais', cartao:val('cartaoAtual')||null, aplicacao_exclusiva:val('aplicacaoExclusiva'), relacionamento_gerente:val('relacionamentoGerente'), relatorios_informacoes:val('relatoriosInformacoes'), observacoes:val('observacoesBeneficios')||null},
+    ];
+
+    const prio=qs('input[name="prio"]:checked').map(x=>x.value);
+    const objetivos=[
+      ...repDataNumbers('goalsCurto').map(x=>({horizonte:'curto_prazo',...x})),
+      ...repDataNumbers('goalsMedio').map(x=>({horizonte:'medio_prazo',...x})),
+      ...repDataNumbers('goalsLongo').map(x=>({horizonte:'longo_prazo',...x})),
+      {tipo:'aposentadoria', idade_desejada:num('idadeAposentadoria')||null, renda_passiva_desejada:num('rendaPassivaDesejada')||null},
+      {tipo:'prioridades', prioridades:prio},
+      {tipo:'maior_dificuldade', descricao:val('maiorDificuldade')},
+    ];
+
+    const protecao=[{
+      tipo:'seguro_vida', possui:val('temSeguroVida'),
+      qual: val('temSeguroVida')==='Sim' ? (val('qualSeguradora')||null) : null,
+      valor: val('temSeguroVida')==='Sim' ? num('valorCobertura') : null,
+      entende_para_que_serve: val('temSeguroVida')==='Não' ? val('entendeParaQueServe') : null,
+    }];
+
+    const sucessao = mostrarSucessao() ? [{
+      tipo:'sucessao_patrimonial', possui_testamento:val('possuiTestamento'), possui_holding:val('possuiHolding'), desejos_e_preocupacoes:val('desejosSucessao')||null,
+    }] : [];
+
+    const insumos={
+      receita_mensal_liquida:num('rendaMensal')||null,
+      despesas_mensais:num('despesaMensal')||null,
+      disponibilidade_para_investir:num('poupancaMensal')||null,
+    };
+
+    return {
+      website:val('website'),
+      nome:val('nome'),
+      email:val('email')||null,
+      telefone:val('telefone')||null,
+      profissao:val('profissao')||null,
+      estado_civil: val('casado')==='Sim' ? 'Casado(a)/União estável' : 'Solteiro(a)',
+      banker_id:val('bankerId')||null,
+      patrimonio, investimentos, objetivos, protecao, sucessao, insumos,
+    };
+  }
+
+  async function carregarBankers(){
+    try{
+      const res=await fetch(API_BASE+'/formulario-publico/bankers');
+      if(!res.ok) return;
+      const bankers=await res.json();
+      const sel=$('bankerId');
+      bankers.forEach(b=>{
+        const opt=document.createElement('option');
+        opt.value=b.id; opt.textContent=b.nome;
+        sel.appendChild(opt);
+      });
+    }catch(e){
+      console.warn('Não foi possível carregar a lista de assessores:',e);
+    }
+  }
+
+  $('form').addEventListener('submit',async e=>{
+    e.preventDefault();
+    if(!val('nome')){step=1;render();showVal('Informe o nome completo antes de enviar.');return}
+
+    const btn=$('finishBtn');
+    const textoOriginal=btn.textContent;
+    btn.disabled=true; btn.textContent='Enviando...';
+    $('validation').style.display='none';
+
+    try{
+      const fd=new FormData();
+      fd.append('payload', JSON.stringify(buildPayload()));
+      const arquivo=$('arquivoCarteira').files[0];
+      if(modoInvestimentos==='anexo' && arquivo){
+        fd.append('arquivo', arquivo);
+      }
+
+      const res=await fetch(API_BASE+'/formulario-publico/rapido',{method:'POST', body:fd});
+
+      if(res.status===429){
+        showVal('Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.','error');
+        btn.disabled=false; btn.textContent=textoOriginal;
+        return;
+      }
+      if(!res.ok){
+        const corpo=await res.json().catch(()=>({}));
+        showVal('Não foi possível enviar agora ('+(corpo.detail||res.status)+'). Tente novamente em instantes ou fale direto com seu assessor.','error');
+        btn.disabled=false; btn.textContent=textoOriginal;
+        return;
+      }
+
+      $('formPanel').querySelector('#form').style.display='none';
+      $('sucessoPanel').classList.add('active');
+      document.querySelector('.steps').style.display='none';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(err){
+      console.error(err);
+      showVal('Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.','error');
+      btn.disabled=false; btn.textContent=textoOriginal;
+    }
+  });
+
+  $('addGoalCurto').click(); $('addGoalMedio').click(); $('addGoalLongo').click();
+  setModoInvestimentos('manual');
+  carregarBankers();
+  render();
+})();
+</script>
+</body>
+</html>
