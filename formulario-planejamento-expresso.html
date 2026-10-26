@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C2LZ — Diagnóstico Expresso</title>
+<style>
+:root{
+  --bg:#EEF1EF; --bg-2:#E3E8E4; --panel:#FFFFFF; --panel-2:#FFFFFF; --panel-3:#E3E8E4;
+  --border:#D7DED9; --border-soft:#E3E8E4;
+  --ink:#142019; --muted:#55695D; --faint:#7C9186;
+  --gold:#c99a54; --gold-bright:#e6c07f; --gold-dim:#4a3c22;
+  --mint:#2fe3ab; --mint-dim:#123a2c;
+  --danger:#e5786a; --danger-dim:#3a1c17;
+  --shadow:0 8px 28px rgba(20,32,25,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,Arial,sans-serif;color:var(--ink)}
+.app{max-width:880px;margin:auto;padding:24px}
+.header{background:var(--panel-2);color:var(--ink);border:1px solid var(--border);border-radius:18px;padding:26px 28px;margin-bottom:18px}
+.brand{font-size:13px;letter-spacing:1.4px;color:var(--gold);font-weight:800}
+h1{margin:8px 0 6px;font-size:26px;font-family:'Space Grotesk',Inter,Arial,sans-serif}
+.header p{margin:0;color:var(--muted)}
+.panel{background:var(--panel-2);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:24px}
+.kicker{font-size:12px;font-weight:800;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+h2{margin:5px 0 7px;font-size:18px;color:var(--ink);font-family:'Space Grotesk',Inter,Arial,sans-serif}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+label{font-size:13px;font-weight:700}
+input,select,textarea{width:100%;min-height:44px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:16px;background:var(--panel);color:var(--ink);outline:none}
+textarea{min-height:66px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,154,84,.18)}
+.help{font-size:12px;color:var(--muted)}
+.card{border:1px solid var(--border);border-radius:13px;padding:16px;margin:16px 0;background:var(--bg)}
+.card h3{margin:0 0 4px;color:var(--ink);font-size:16px}
+.card .subdesc{margin:0 0 12px}
+.card.destaque{border-color:var(--gold);background:var(--gold-dim)}
+.card.destaque h3,.card.destaque label,.card.destaque .help{color:var(--gold-bright)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+button{border:0;border-radius:10px;padding:12px 17px;font-size:14px;font-weight:800;cursor:pointer;min-height:44px}
+.teal{background:var(--gold);color:var(--ink)}
+button:disabled{opacity:.55;cursor:not-allowed}
+.checkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.check{border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;gap:8px;align-items:center;font-size:13px}
+.check input{min-height:auto;width:18px}
+.notice{padding:13px 15px;border-radius:11px;background:var(--mint-dim);border-left:4px solid var(--mint);margin:15px 0;line-height:1.45;color:var(--mint)}
+.warn{background:var(--gold-dim);border-left-color:var(--gold);color:var(--gold-bright)}
+.error{background:var(--danger-dim);border-left-color:var(--danger);color:var(--danger)}
+.footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+.hp{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden}
+.sucesso-panel{display:none;text-align:center;padding:40px 20px}
+.sucesso-panel.active{display:block}
+.sucesso-panel h2{color:var(--ink);font-size:22px}
+input[type="file"]{padding:9px;min-height:auto}
+@media(max-width:700px){
+ .app{padding:12px}.grid,.grid3,.checkgrid{grid-template-columns:1fr}
+ .panel{padding:16px}h1{font-size:21px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="header">
+    <div class="brand">C2LZ CAPITAL PARTNERS</div>
+    <h1>Diagnóstico Expresso</h1>
+    <p>O mínimo pra gente começar a conversa — leva menos de 2 minutos.</p>
+  </header>
+
+  <main class="panel" id="formPanel">
+    <form id="form">
+      <div class="hp" aria-hidden="true">
+        <label for="website">Deixe este campo em branco</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="card destaque">
+        <h3>Assessor / Banker responsável</h3>
+        <div class="field">
+          <label for="bankerId">Quem está te atendendo na C2LZ? *</label>
+          <select id="bankerId">
+            <option value="">Ainda não tenho um assessor</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field"><label>Nome completo *</label><input id="nome" required></div>
+        <div class="field"><label>Telefone</label><input id="telefone" inputmode="tel" placeholder="(00) 00000-0000" maxlength="15"></div>
+        <div class="field full"><label>E-mail</label><input id="email" type="email"></div>
+      </div>
+
+      <div class="card"><h3>Renda</h3>
+        <div class="grid">
+          <div class="field"><label>Quanto você ganha por mês?</label><input class="money" id="rendaPrincipal" value="R$ 0,00"></div>
+          <div class="field"><label>Tem outra fonte de renda? (aluguéis, outro trabalho...)</label><select id="temFonteSecundaria"><option>Não</option><option>Sim</option></select></div>
+          <div class="field full" data-fieldwrap="valorFonteSecundaria" style="display:none"><label>Quanto, aproximadamente?</label><input class="money" id="valorFonteSecundaria" value="R$ 0,00"></div>
+        </div>
+      </div>
+
+      <div class="card"><h3>Gastos e família</h3>
+        <div class="grid">
+          <div class="field"><label>Quanto você gasta por mês?</label><input class="money" id="despesaMensal" value="R$ 0,00"></div>
+          <div class="field full"><label>Com o que, resumidamente?</label><textarea id="comOQueGasta" placeholder="Ex.: moradia, escola dos filhos, lazer..."></textarea></div>
+          <div class="field"><label>Tem cônjuge?</label><select id="temConjuge"><option>Não</option><option>Sim</option></select></div>
+          <div class="field"><label>Quantos filhos?</label><input id="qtdFilhos" type="number" min="0" value="0"></div>
+          <div class="field"><label>Quantos outros dependentes?</label><input id="qtdDependentes" type="number" min="0" value="0"></div>
+          <div class="field"><label>Tem financiamento?</label><select id="temFinanciamento"><option>Não</option><option>Sim</option></select></div>
+          <div class="field" data-fieldwrap="financiamentoDoQue" style="display:none"><label>Do quê?</label><input id="financiamentoDoQue" placeholder="Ex.: imóvel, carro..."></div>
+          <div class="field" data-fieldwrap="financiamentoSaldo" style="display:none"><label>Saldo devedor</label><input class="money" id="financiamentoSaldo" value="R$ 0,00"></div>
+          <div class="field" data-fieldwrap="financiamentoParcela" style="display:none"><label>Qual a parcela mensal?</label><input class="money" id="financiamentoParcela" value="R$ 0,00"></div>
+          <div class="field"><label>Quanto sobra por mês?</label><input class="money" id="poupancaMensal" value="R$ 0,00"></div>
+        </div>
+      </div>
+
+      <div class="card"><h3>Aposentadoria</h3>
+        <div class="grid">
+          <div class="field"><label>Com quantos anos quer se aposentar?</label><input id="idadeAposentadoria" type="number" min="18" max="100" value="65"></div>
+          <div class="field"><label>Ganhando quanto? (seu patrimônio trabalhando por você)</label><input class="money" id="rendaPassivaDesejada" value="R$ 0,00"></div>
+        </div>
+      </div>
+
+      <div class="card"><h3>Patrimônio</h3>
+        <div class="field">
+          <label>Quanto você estima ter de patrimônio, somando bens móveis, imóveis e investimentos?</label>
+          <input class="money" id="patrimonioEstimado" value="R$ 0,00">
+          <p class="help">Não precisa ser exato — é só uma referência inicial.</p>
+        </div>
+      </div>
+
+      <div class="card"><h3>Recursos guardados/investidos</h3>
+        <div class="grid">
+          <div class="field"><label>Tem recursos guardados ou investidos?</label><select id="temRecursosInvestidos"><option>Não</option><option>Sim</option></select></div>
+          <div class="field" data-fieldwrap="valorRecursosInvestidos" style="display:none"><label>Quanto, no total?</label><input class="money" id="valorRecursosInvestidos" value="R$ 0,00"></div>
+        </div>
+        <div id="blocoRecursos" style="display:none;margin-top:14px">
+          <div class="field"><label>Se possível, anexe o PDF da sua carteira</label><input type="file" id="arquivoCarteira" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"></div>
+          <p class="help" style="margin-top:8px">O que inclui?</p>
+          <div class="checkgrid" style="margin-top:8px">
+            <label class="check"><input type="checkbox" name="incluiRecurso" value="Reserva de emergência"> Reserva de emergência</label>
+            <label class="check"><input type="checkbox" name="incluiRecurso" value="Previdência"> Previdência</label>
+            <label class="check"><input type="checkbox" name="incluiRecurso" value="Aplicações/outros investimentos"> Aplicações / outros</label>
+          </div>
+        </div>
+      </div>
+
+      <div id="validation" class="notice warn" style="display:none"></div>
+      <div class="btnrow">
+        <button type="submit" class="teal" id="finishBtn">Enviar para a C2LZ</button>
+      </div>
+    </form>
+
+    <div class="sucesso-panel" id="sucessoPanel">
+      <h2>Recebemos seu diagnóstico 🎉</h2>
+      <p class="help">Obrigado pelo seu tempo. Um assessor da C2LZ Capital Partners vai analisar as suas respostas e entrar em contato em breve.</p>
+    </div>
+  </main>
+  <div class="footer">C2LZ Capital Partners · Diagnóstico expresso · Documento confidencial</div>
+</div>
+
+<script>
+(function(){
+  const root=document.getElementById('app');
+  if(root.dataset.ready) return; root.dataset.ready='1';
+  const $=id=>document.getElementById(id);
+  const qs=(s,el=root)=>Array.from(el.querySelectorAll(s));
+  const val=id=>($(id)?.value||'');
+  const parseMoeda=s=>{
+    let x=String(s||'').replace(/^R\$\s?/,'').replace(/\./g,'').replace(',','.');
+    x=x.replace(/[^0-9.-]/g,'');
+    return parseFloat(x)||0;
+  };
+  const num=id=>parseMoeda(val(id));
+
+  const API_BASE='https://c2lz-crm-api.onrender.com';
+
+  // ---- Máscaras ----
+  function maskTelefone(v){
+    v=v.replace(/\D/g,'').slice(0,11);
+    if(v.length>10) return v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3').trim();
+    if(v.length>6) return v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3').trim();
+    if(v.length>2) return v.replace(/(\d{2})(\d{0,5})/,'($1) $2').trim();
+    if(v.length>0) return v.replace(/(\d*)/,'($1').trim();
+    return '';
+  }
+  function maskMoeda(v){
+    let digits=v.replace(/\D/g,'');
+    digits=digits.replace(/^0+(?=\d)/,'');
+    if(!digits) digits='0';
+    if(digits.length<3) digits=digits.padStart(3,'0');
+    let cents=digits.slice(-2), intPart=digits.slice(0,-2).replace(/^0+(?=\d)/,'')||'0';
+    intPart=intPart.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+    return 'R$ '+intPart+','+cents;
+  }
+  root.addEventListener('input',e=>{
+    const t=e.target;
+    if(t.id==='telefone') t.value=maskTelefone(t.value);
+    else if(t.classList && t.classList.contains('money')) t.value=maskMoeda(t.value);
+  });
+  root.addEventListener('focusin',e=>{
+    if(e.target.classList && e.target.classList.contains('money')) e.target.select();
+  });
+
+  // ---- Condicionais ----
+  function mostrar(id,visivel){
+    const wrap=root.querySelector(`[data-fieldwrap="${id}"]`);
+    if(wrap) wrap.style.display = visivel ? '' : 'none';
+  }
+  function atualizarCondicionais(){
+    mostrar('valorFonteSecundaria', val('temFonteSecundaria')==='Sim');
+
+    const financiado = val('temFinanciamento')==='Sim';
+    mostrar('financiamentoDoQue', financiado);
+    mostrar('financiamentoSaldo', financiado);
+    mostrar('financiamentoParcela', financiado);
+
+    const temRecursos = val('temRecursosInvestidos')==='Sim';
+    mostrar('valorRecursosInvestidos', temRecursos);
+    $('blocoRecursos').style.display = temRecursos ? '' : 'none';
+  }
+  root.addEventListener('input',atualizarCondicionais);
+  root.addEventListener('change',atualizarCondicionais);
+
+  function showVal(t,tipo){$('validation').textContent=t;$('validation').className='notice '+(tipo||'warn');$('validation').style.display='block';window.scrollTo({top:0,behavior:'smooth'});}
+
+  function buildPayload(){
+    const patrimonio=[
+      {tipo:'renda', renda_principal_mensal:num('rendaPrincipal'), tem_fonte_secundaria:val('temFonteSecundaria'), valor_fonte_secundaria: val('temFonteSecundaria')==='Sim'?num('valorFonteSecundaria'):null},
+      {tipo:'gastos_familia',
+        despesa_mensal:num('despesaMensal'), com_o_que:val('comOQueGasta')||null,
+        tem_conjuge:val('temConjuge'), qtd_filhos:num('qtdFilhos')||0, qtd_dependentes:num('qtdDependentes')||0,
+        tem_financiamento:val('temFinanciamento'),
+        financiamento_do_que: val('temFinanciamento')==='Sim' ? (val('financiamentoDoQue')||null) : null,
+        financiamento_saldo: val('temFinanciamento')==='Sim' ? num('financiamentoSaldo') : null,
+        financiamento_parcela: val('temFinanciamento')==='Sim' ? num('financiamentoParcela') : null,
+        poupanca_mensal:num('poupancaMensal'),
+      },
+      {tipo:'estimativa_patrimonio_total', valor:num('patrimonioEstimado')},
+    ];
+
+    const arquivo=$('arquivoCarteira').files[0];
+    const inclui=qs('input[name="incluiRecurso"]:checked').map(x=>x.value);
+    const investimentos=[
+      {tipo:'recursos_investidos', possui:val('temRecursosInvestidos'),
+        valor_total: val('temRecursosInvestidos')==='Sim' ? num('valorRecursosInvestidos') : null,
+        possui_anexo: val('temRecursosInvestidos')==='Sim' && !!arquivo,
+        inclui,
+      },
+    ];
+
+    const objetivos=[
+      {tipo:'aposentadoria', idade_desejada:num('idadeAposentadoria')||null, renda_passiva_desejada:num('rendaPassivaDesejada')||null},
+    ];
+
+    const insumos={
+      receita_mensal_liquida: num('rendaPrincipal') + (val('temFonteSecundaria')==='Sim'?num('valorFonteSecundaria'):0),
+      despesas_mensais: num('despesaMensal'),
+      disponibilidade_para_investir: num('poupancaMensal'),
+    };
+
+    return {
+      website:val('website'),
+      nome:val('nome'),
+      email:val('email')||null,
+      telefone:val('telefone')||null,
+      banker_id:val('bankerId')||null,
+      patrimonio, investimentos, objetivos, protecao:[], sucessao:[], insumos,
+    };
+  }
+
+  async function carregarBankers(){
+    try{
+      const res=await fetch(API_BASE+'/formulario-publico/bankers');
+      if(!res.ok) return;
+      const bankers=await res.json();
+      const sel=$('bankerId');
+      bankers.forEach(b=>{
+        const opt=document.createElement('option');
+        opt.value=b.id; opt.textContent=b.nome;
+        sel.appendChild(opt);
+      });
+    }catch(e){
+      console.warn('Não foi possível carregar a lista de assessores:',e);
+    }
+  }
+
+  $('form').addEventListener('submit', async e=>{
+    e.preventDefault();
+    if(!val('nome')){showVal('Informe o nome completo antes de enviar.');return}
+
+    const btn=$('finishBtn');
+    const textoOriginal=btn.textContent;
+    btn.disabled=true; btn.textContent='Enviando...';
+    $('validation').style.display='none';
+
+    try{
+      const fd=new FormData();
+      fd.append('payload', JSON.stringify(buildPayload()));
+      const arquivo=$('arquivoCarteira').files[0];
+      if(val('temRecursosInvestidos')==='Sim' && arquivo){
+        fd.append('arquivo', arquivo);
+      }
+
+      const res=await fetch(API_BASE+'/formulario-publico/rapido',{method:'POST', body:fd});
+
+      if(res.status===429){
+        showVal('Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.','error');
+        btn.disabled=false; btn.textContent=textoOriginal;
+        return;
+      }
+      if(!res.ok){
+        const corpo=await res.json().catch(()=>({}));
+        showVal('Não foi possível enviar agora ('+(corpo.detail||res.status)+'). Tente novamente em instantes ou fale direto com seu assessor.','error');
+        btn.disabled=false; btn.textContent=textoOriginal;
+        return;
+      }
+
+      $('formPanel').querySelector('#form').style.display='none';
+      $('sucessoPanel').classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(err){
+      console.error(err);
+      showVal('Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.','error');
+      btn.disabled=false; btn.textContent=textoOriginal;
+    }
+  });
+
+  atualizarCondicionais();
+  carregarBankers();
+})();
+</script>
+</body>
+</html>
